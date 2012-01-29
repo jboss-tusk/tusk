@@ -1,0 +1,287 @@
+--------------------------------------------------
+Overview
+--------------------------------------------------
+Tusk is a project that integrates various JBoss Middleware technologies 
+with various Big Data technologies. It's purpose is to:
+	* house bindings between JBoss tools and Big Data tools
+	* provide demo environments that show what can be done when you integrate 
+	enterprise class middleware with industry leading Big Data tools
+	* give ideas for ways that you can use JBoss to augment Big Data and 
+	Big Data to augment JBoss
+
+To run Tusk in a "real" environment, you need a running SOA-P server (with 
+EDSP installed) and either a running Hadoop cluster or Cassandra cluster.
+This includes running the unit tests, although one of the first tasks will
+be to provide embedded Hadoop (HBase, Zookeeper) and Cassandra servers. Once 
+the embedded versions are used to validate functionality, the standalone 
+versions of these servers is adequate until the move to production or until
+performance testing is done.
+
+Due to classloading conflict issues that have not yet been resolved, the 
+current version of Tusk is unable to deploy the ispn-integration jar file within
+SOA-P. Therefore, it is running within a RESTful web service war file in Tomcat.
+When the SOA-P service needs to write the message index to the Infinispan cache
+it makes a REST call to Tomcat. This will hopefully be resolved fairly soon.
+
+
+--------------------------------------------------
+Installed Software Versions
+--------------------------------------------------
+JBoss SOA-P									5.2
+JBoss Enterprise Data Services Platform 	5.2
+JBoss Business Rules Management System		5.2
+Apache Ant									1.8.x
+Apache Maven								3.x
+Apacht Tomcat								6.x
+JDK											1.6.x
+
+Hadoop (Cloudera Distribution for Hadoop)	0.20
+HBase (Cloudera Distribution for Hadoop)	0.20
+Hive (Cloudera Distribution for Hadoop)		0.20
+
+Apache Cassandra							1.0
+
+* Note: if you only want to run against Hadoop or Cassandra, you don't have to
+install the other one.
+
+
+--------------------------------------------------
+Building
+--------------------------------------------------
+To install the artifacts into the local repository without executing the unit
+tests:
+	mvn -Dmaven.test.skip.exec=true clean install
+
+To install the artifacts into the local repository:
+	mvn clean install 
+
+Once the artifacts are built, deploy them via the following:
+	1. Copy the esb-integration-*.esb file into the SOA-P deploy directory
+	2. Copy the TuskUI.war file into the Tomcat webapps directory
+
+You can verify that the artifacts were deployed properly by doing the following:
+	1. Go to the JMX console (http://localhost:8080/jmx-console) and find the
+	BigDataMessengerManagementBean and invoke the stubMessages operation to add a
+	message into the data intake pipeline.
+	2. View the SOA-P log file to verify that the message was handled properly.
+	You'll see something like:
+		14:17:08,881 INFO  [BigDataExtractor] Extracted index: id[0]
+		14:17:08,897 INFO  [BigDataExtractor] Extracted index: addressLine1[210 N. Church Street]
+	3. Go to the Tusk UI (http://localhost:8888/TuskUI/search.html) and search for
+	the message that you just injected.
+
+
+--------------------------------------------------
+Running Tusk
+--------------------------------------------------
+There are convenience scripts in the tusk/bin directory that start/stop/restart (some of) the
+Tusk services in the correct order. Currently these only cover the Hadoop services. After running
+the start or restart script, give the services some time to get initialized before attempting to
+use them. About a minute should do.
+
+These scripts can be updated to manage SOA-P, Tomcat, and Cassandra if necessary.
+
+The Tusk application can be run against either Hbase or Cassandra. To change which data store
+it runs against, update the TuskConfiguration.java class in the common module. The dataStore
+field contains the data store to run against. TODO update this to read from a config file or run.conf. 
+
+
+--------------------------------------------------
+Dev Env
+--------------------------------------------------
+Eclipse Helios was used to develop Tusk and it (or a later version) is recommended 
+for development. JBoss Developer Studio will work fine as well. In either case, 
+ensure that the M2Eclipse plugin is installed. You can install Maven on the command
+line as well if you prefer command line builds.
+
+You can find a sample Maven settings.xml file in the conf directory. It must have a
+jboss.soa.path variable that points to the jboss-as directory of your SOA-P installation.
+
+You will also need to install a Git plugin. TODO - provide more info.
+
+
+--------------------------------------------------
+JBoss Setup
+--------------------------------------------------
+* JDK
+	-Download RPM installer for the the latest JDK 6 from http://www.oracle.com/technetwork/java/javase/downloads/index.html.
+	-Execute the following command: "sudo chmod 755 jdk-6u26-linux-x64-rpm.bin"
+	-Execute the following command: "sudo ./jdk-6u26-linux-x64-rpm.bin"
+
+* Apache Ant
+	-Download the latest ant from http://ant.apache.org/bindownload.cgi.
+	-Unzip the file into /opt.
+	-Create an ANT_HOME environment variable by adding the following lines to /etc/profile
+		export ANT_HOME=/opt/apache-ant-1.8.2
+		export PATH=$PATH:$ANT_HOME/bin
+		
+* EDSP 5.2 and SOA-P 5.2
+	-Download SOA-P, EDSP and BRMS (manager) zip files from Red Hat customer access portal.
+		-TODO get the exact names of the files to download since there are different packages
+	-Unzip soa-5.2.0.GA.zip into the jboss install directory, referred to as $JBOSS_HOME
+		-For example, unzip into /usr/local/jboss/ to have $JBOSS_HOME=/usr/local/jboss/jboss-soa-p-5
+	-Unzip jboss-brms.war into the $JBOSS_HOME/jboss-as/server/default/deploy directory.
+	-Unzip eds-5.2.0.GA.zip into $JBOSS_HOME
+	-Change directory to $JBOSS_HOME/eds.
+	-Run the following command: "ant"
+		-Choose the "default" server profile.
+		-Install Apache CXF.
+	-Change directory to $JBOSS_HOME/jboss-as/server/default/conf/props.
+	-Edit soa-users.properties.
+		admin=admin
+		user1=password
+	-Edit soa-roles.properties.
+		admin=JBossAdmin,HttpInvoker,user,admin
+		user1=admin,JBossAdmin,READWRITE
+	-Edit teiid-security-users.properties.
+		user1=password
+	-Edit teiid-security-roles.properties.
+		admin=admin
+		user1=audit,log
+	-Change directory to $JBOSS_HOME/jboss-as/bin
+	-Start EDSP via the following command: "./run.sh -c <profile>"
+
+
+--------------------------------------------------
+Tomcat Setup
+--------------------------------------------------
+It doesn't matter where this is installed to. Just unzip the distribution and run it on
+demand. Or install it as a service - whatever you want.
+
+The most important thing is to change the configuration to use port 8888 for HTTP. To do
+this edit the conf/server.xml file and change the HTTP connector.
+
+
+--------------------------------------------------
+Hadoop (HDFS, HBase, MapReduce, Hive) Setup
+--------------------------------------------------
+* Once Hadoop is installed, the main config files for the Hadoop services are at:
+	/etc/hadoop/conf
+	/etc/hbase/conf
+	/etc/zookeeper
+	/etc/hive/conf
+	
+* Install the services:
+	wget http://archive.cloudera.com/redhat/cdh/cdh3-repository-1.0-1.noarch.rpm
+	sudo yum --nogpgcheck localinstall cdh3-repository-1.0-1.noarch.rpm
+	sudo rpm --import http://archive.cloudera.com/redhat/cdh/RPM-GPG-KEY-cloudera
+	sudo yum install hadoop-0.20-conf-pseudo
+	sudo yum install hadoop-hbase
+	sudo yum install hadoop-hive
+	sudo vim /etc/security/limits.conf
+		hdfs  -       nofile  32768
+		hbase  -       nofile  32768
+	sudo vim /etc/alternatives/hadoop-etc/conf/hdfs-site.xml
+		<property>
+		  <name>dfs.datanode.max.xcievers</name>
+		  <value>4096</value>
+		</property>
+	sudo service hadoop-0.20-namenode start
+	sudo service hadoop-0.20-secondarynamenode start
+	sudo service hadoop-0.20-datanode start
+	sudo service hadoop-0.20-tasktracker start
+	sudo service hadoop-0.20-jobtracker start
+	sudo yum install hadoop-hbase-master
+	
+	sudo vim /etc/hbase/conf/hbase-site.xml
+		<configuration>
+		  <property>
+		    <name>hbase.cluster.distributed</name>
+		    <value>true</value>
+		  </property>
+		  <property>
+		    <name>hbase.rootdir</name>
+		    <value>hdfs://localhost/hbase</value>
+		    <description>The directory shared by RegionServers.</description>
+		  </property>
+		  <property>
+		    <name>dfs.replication</name>
+		    <value>1</value>
+		    <description>The replication count for HLog and HFile storage. Should not be greater than HDFS datanode count.</description>
+		  </property>
+		</configuration>
+	sudo yum install hadoop-zookeeper-server
+	sudo service hadoop-zookeeper-server start
+	sudo vim /etc/zookeeper/zoo.cfg
+	
+	sudo service hadoop-hbase-master start
+	sudo yum install hadoop-hbase-regionserver
+	sudo service hadoop-hbase-regionserver start
+
+	sudo -u hdfs hadoop fs -mkdir /tmp
+	sudo -u hdfs hadoop fs -chmod g+w /tmp
+	sudo -u hdfs hadoop fs -mkdir /user/hive
+	sudo -u hdfs hadoop fs -mkdir /user/hive/warehouse
+	sudo -u hdfs hadoop fs -chmod g+w /user/hive/warehouse
+	sudo vim /etc/hive/conf/hive-site.xml; add the following, updating paths as necessary:
+		<property>
+		  <name>hive.aux.jars.path</name>
+		  <value>file:///usr/lib/hive/lib/hive-hbase-handler-0.7.1-cdh3u1.jar,file:///usr/lib/zookeeper/zookeeper-3.3.3-cdh3u1.jar,file:///usr/lib/hbase/hbase-0.90.3-cdh3u1.jar,file:///usr/lib/hbase/lib/guava-r06.jar</value>
+		</property>
+
+* HBase DDL
+Run the following commands to create the HBase structures
+	$ hbase shell
+	> create 'messages', 'data', 'metadata'
+	> create 'message-index', 'fields'
+
+* Hive DDL (TODO need to validate these; they are probably wrong)
+Run the following commands to create the Hive structures
+	$ hive
+	> create external table hbase_message_index(key string, diseases string, groupId string, patientId string, planId string, state string)
+		stored by 'org.apache.hadoop.hive.hbase.HBaseStorageHandler'
+		with SERDEPROPERTIES ("hbase.columns.mapping" = ":key,fields:diseases,fields:groupId,fields:patientId,fields:planId,fields:state")        
+		TBLPROPERTIES("hbase.table.name" = "message-index");
+
+* Notes and Trousbleshooting
+-Sometimes the hadoop-hbase-master and/or hadoop-hbase-regionserver and/or hadoop-zookeeper-server daemons die and have 
+to be started again. If hive/hbase are not working, then the first thing to do is make sure these daemons are running via:
+	$ sudo service hadoop-zookeeper-server restart
+	$ sudo service hadoop-hbase-master restart
+	$ sudo service hadoop-hbase-regionserver restart
+
+-If you start the hbase shell and run a command and you see the following error message:
+	FATAL zookeeper.ZKConfig: The server in zoo.cfg cannot be set to localhost in a fully-distributed setup because it won't be reachable.
+then do the following:
+	In /etc/zookeeper/zoo.cfg, change the server name in server.0 from 'localhost' to the actual server name.
+
+-If you see errors about zookeeper connection limits, do the following:
+	In /etc/hbase/conf/hbase-site.xml, add the following property:
+		<property>
+		  <name>hbase.zookeeper.property.maxClientCnxns</name>
+		  <value>200</value>
+		  <final>true</final>
+		</property>
+	In /etc/zookeeper/zoo.cfg, add the following property:
+		maxClientCnxns=200 
+	Restart the following daemons: hadoop-hbase-master, hadoop-hbase-regionserver, hadoop-zookeeper-server
+
+
+--------------------------------------------------
+Cassandra Setup
+--------------------------------------------------
+You can install Cassandra anywhere and run it on-demand or as a service.
+
+If running Tusk against cassandra, you must start the cassandra cluster before running the application
+Do this on a single node by running the "cassandra" command in the cassandra/bin directory.
+The keyspaces for the infinispan cachestore will be created automatically if they are not there
+so no need to create them manually. You must create the keyspace for the main message data store,
+which is "TuskData" by default (see the KeyspaceDefinition lines of code in  BigDataExtractor.java 
+in the esb-integration project). The ispn-integration/src/main/resources/cassandra-schema.txt
+file contains the commands to create the Cassandra schema.
+
+The current implementation requires a running cassandra server. There is an embedded cassandra
+server that can be used for testing. Check out the cassandra cachestore module in the
+Infinispan codebase for the code. If we use it we'd have to pre-create the keyspace and column
+family automatically each time the embedded server is started. The infinispan cassandra cachestore
+automatically creates a keyspace so we can use that as a guide.
+
+
+--------------------------------------------------
+Random Notes
+--------------------------------------------------
+* As of 10/8/2011, there is an exception when the service handles the message.
+This is because Infinispan requires a newer version of JBoss Logging (3.0) than
+what comes with EDSP 5.1. It shouldn't be too hard to fix the deployment so that
+the ESB uses the deployed version of jboss logging (e.g. jboss-logging-3.0.0.GA.jar)
+instead of the one packaged in EDSP, which is version 2.1 I think.
