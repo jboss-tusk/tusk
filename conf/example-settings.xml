@@ -1,0 +1,58 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                      http://maven.apache.org/xsd/settings-1.0.0.xsd">
+	<!-- This is for the Tusk project. -->
+	<profiles>
+		<profile>
+			<id>jboss-public-repository</id>
+			<repositories>
+				<repository>
+					<id>jboss-public-repository-group</id>
+					<name>JBoss Public Maven Repository Group</name>
+					<url>https://repository.jboss.org/nexus/content/groups/public-jboss/</url>
+					<layout>default</layout>
+					<releases>
+						<enabled>true</enabled>
+						<updatePolicy>never</updatePolicy>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+						<updatePolicy>never</updatePolicy>
+					</snapshots>
+				</repository>
+			</repositories>
+			<pluginRepositories>
+				<pluginRepository>
+					<id>jboss-public-repository-group</id>
+					<name>JBoss Public Maven Repository Group</name>
+					<url>https://repository.jboss.org/nexus/content/groups/public-jboss/</url>
+					<layout>default</layout>
+					<releases>
+						<enabled>true</enabled>
+						<updatePolicy>never</updatePolicy>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+						<updatePolicy>never</updatePolicy>
+					</snapshots>
+				</pluginRepository>
+			</pluginRepositories>
+			<properties>
+				<jboss.soa.version>5.1.0.SOA</jboss.soa.version>
+				<jboss.soa.path>/usr/local/jboss/jboss-soa-p-5/jboss-as</jboss.soa.path>
+			</properties>
+		</profile>
+	</profiles>
+
+	<activeProfiles>
+		<activeProfile>jboss-public-repository</activeProfile>
+	</activeProfiles>
+
+	<!--repositories> <repository> <id>Central</id> <name>Central Maven</name> 
+		<releases> <enabled>true</enabled> <updatePolicy>always</updatePolicy> <checksumPolicy>warn</checksumPolicy> 
+		</releases> <snapshots> <enabled>true</enabled> <updatePolicy>never</updatePolicy> 
+		<checksumPolicy>fail</checksumPolicy> </snapshots> <url>http://repo1.maven.org/maven2/</url> 
+		<layout>default</layout> </repository> </repositories -->
+
+</settings>

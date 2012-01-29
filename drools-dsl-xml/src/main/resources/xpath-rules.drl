@@ -1,0 +1,55 @@
+package com.jboss.bigdata.xpath
+dialect "java" 
+
+import org.w3c.dom.Document
+
+import org.drools.support.BigDataIndex
+import org.drools.support.xml.evaluators.XPathAbstractIndexEvaluator
+import org.drools.support.xml.evaluators.XPathDateIndexEvaluator
+import org.drools.support.xml.evaluators.XPathStringIndexEvaluator
+import org.drools.support.xml.XmlMessagePayload
+
+import java.util.Iterator
+import java.util.Map 
+import java.util.HashMap
+
+rule "Extract Index"
+	//for each xpath index evaluator, extract the indexes.
+	when
+		$d : XmlMessagePayload( )
+		$x : XPathAbstractIndexEvaluator( )
+	then 
+		Iterator<BigDataIndex> bdis = $x.evaluate($d.getPayload());
+		
+		if(bdis!=null)
+		{
+			while(bdis.hasNext())
+			{
+				BigDataIndex bdi = bdis.next();
+				$d.getIndexes().add(bdi);
+			}
+		}
+		
+end
+
+rule "Extraction ID Index"
+	when
+		$d : XmlMessagePayload( )
+	then
+		//Map<String, String> namespaces, String xpathExpression, String keyName
+		Map<String, String> namespaces = new HashMap<String, String>();
+		namespaces.put("per", "http://jboss.com/person");
+		XPathAbstractIndexEvaluator xie = new XPathStringIndexEvaluator(namespaces, "//per:id", "id");
+		insert(xie);
+end
+
+
+rule "Extraction AddressLine1 Index"
+	when
+		$d : XmlMessagePayload( )
+	then
+		Map<String, String> namespaces = new HashMap<String, String>();
+		namespaces.put("per", "http://jboss.com/person");
+		XPathAbstractIndexEvaluator xie = new XPathStringIndexEvaluator(namespaces, "//per:address/per:line[1]", "addressLine1");
+		insert(xie);
+end

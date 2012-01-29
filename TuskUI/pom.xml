@@ -1,0 +1,73 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>   
+    <groupId>org.jboss.tusk</groupId>
+    <artifactId>jboss-bigdata-integration</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.jboss.tusk.web</groupId>
+  <artifactId>TuskUI</artifactId>
+  <packaging>war</packaging>
+  <name>TuskUI Webapp</name>
+  <url>http://maven.apache.org</url>
+  
+  
+  <build>
+    <finalName>TuskUI</finalName>
+    <plugins>
+      <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>2.1.1</version>
+        <!--configuration>
+          <attachClasses>true</attachClasses>
+        </configuration-->
+      </plugin>
+    </plugins>
+  </build>
+  
+  
+  <dependencies>
+    <dependency>
+      <groupId>org.jboss.tusk.common</groupId>
+      <artifactId>tusk-common</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.tusk.infinispan</groupId>
+      <artifactId>ispn-integration</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+	  <dependency>
+	    <groupId>javax.servlet</groupId>
+	    <artifactId>servlet-api</artifactId>
+	    <version>2.5</version>
+	  </dependency>
+	<dependency>
+	    <groupId>org.springframework</groupId>
+	    <artifactId>spring-webmvc</artifactId>
+	    <version>3.0.6.RELEASE</version>
+	</dependency>
+    <dependency>
+	    <groupId>me.prettyprint</groupId>
+	    <artifactId>hector-core</artifactId>
+	    <version>0.8.0-2</version>
+	</dependency>
+    
+    <dependency>
+    	<groupId>com.sun.jersey</groupId>
+    	<artifactId>jersey-server</artifactId>
+    	<version>1.9.1</version>
+    </dependency>
+    <dependency>
+    	<groupId>com.sun.jersey</groupId>
+    	<artifactId>jersey-client</artifactId>
+    	<version>1.9.1</version>
+    </dependency>
+    <dependency>
+    	<groupId>com.sun.jersey</groupId>
+    	<artifactId>jersey-core</artifactId>
+    	<version>1.9.1</version>
+    </dependency>
+  </dependencies>
+</project>

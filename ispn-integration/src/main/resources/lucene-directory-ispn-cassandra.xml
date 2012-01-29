@@ -1,0 +1,163 @@
+<infinispan
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="urn:infinispan:config:5.0 http://www.infinispan.org/schemas/infinispan-config-5.0.xsd"
+      xmlns="urn:infinispan:config:5.0">
+      
+    <!-- *************************** -->
+    <!-- System-wide global settings -->
+    <!-- *************************** -->
+
+    <global>
+        <!-- If the transport is omitted, there is no way to create distributed or clustered 
+            caches. There is no added cost to defining a transport but not creating a cache that uses one, 
+            since the transport is created and initialized lazily. -->
+        <transport
+            clusterName="Lucene-Directory-Infinispan-cluster"
+            distributedSyncTimeout="50000">
+            <!-- Note that the JGroups transport uses sensible defaults if no configuration 
+                property is defined. See the JGroupsTransport javadocs for more flags -->
+        </transport>
+        
+        <globalJmxStatistics allowDuplicateDomains="true"></globalJmxStatistics>
+    </global>
+
+    <!-- *************************** -->
+    <!-- Default "template" settings -->
+    <!-- *************************** -->
+
+    <default>
+
+        <locking
+            lockAcquisitionTimeout="20000"
+            writeSkewCheck="false"
+            concurrencyLevel="500"
+            useLockStriping="false" />
+
+        <lazyDeserialization
+            enabled="false" />
+
+        <!-- Invocation batching is required for use with the Lucene Directory -->
+        <invocationBatching
+            enabled="true" />
+
+        <!-- This element specifies that the cache is clustered. modes supported: distribution 
+            (d), replication (r) or invalidation (i). Don't use invalidation to store Lucene indexes (as 
+            with Hibernate Search DirectoryProvider). Replication is recommended for best performance of 
+            Lucene indexes, but make sure you have enough memory to store the index in your heap.
+            Also distribution scales much better than replication on high number of nodes in the cluster. -->
+        <clustering
+            mode="distribution">
+
+            <!-- Prefer loading all data at startup than later -->
+            <stateRetrieval
+                timeout="20000"
+                logFlushTimeout="30000"
+                fetchInMemoryState="true"
+                alwaysProvideInMemoryState="true" />
+
+            <!-- Network calls are synchronous by default -->
+            <sync
+                replTimeout="20000" />
+        </clustering>
+
+        <jmxStatistics
+            enabled="true" />
+            
+        <eviction
+            maxEntries="-1"
+            strategy="NONE" />
+
+        <expiration
+            maxIdle="-1" />
+
+    </default>
+
+    <!-- ******************************************************************************* -->
+    <!-- Individually configured "named" caches.                                         -->
+    <!--                                                                                 -->
+    <!-- While default configuration happens to be fine with similar settings across the -->
+    <!-- three caches, they should generally be different in a production environment.   -->
+    <!--                                                                                 -->
+    <!-- Current settings could easily lead to OutOfMemory exception as a CacheStore     -->
+    <!-- should be enabled, and maybe distribution is desired.                           -->
+    <!-- ******************************************************************************* -->
+
+    <!-- *************************************** -->
+    <!--  Cache to store Lucene's file metadata  -->
+    <!-- *************************************** -->
+    <namedCache name="LuceneIndexesMetadata">
+        <clustering mode="distribution">
+            <stateRetrieval fetchInMemoryState="false" logFlushTimeout="30000" />
+            <sync replTimeout="25000" />
+        </clustering>
+	    <loaders passivation="false" shared="true" preload="false">
+	    <loader class="org.infinispan.loaders.cassandra.CassandraCacheStore"
+		  	fetchPersistentState="true" ignoreModifications="false" purgeOnStartup="false">
+	           <properties>
+	                   <property name="host" value="localhost" />
+	                   <property name="keySpace" value="LuceneIndexesMetadataInfinispan" />
+	                   <property name="entryColumnFamily" value="LuceneIndexesMetadataInfinispanEntries" />
+	                   <property name="expirationColumnFamily" value="LuceneIndexesMetadataInfinispanExpiration" />
+	                   <property name="sharedKeyspace" value="false" />
+	                   <property name="readConsistencyLevel" value="ONE" />
+	                   <property name="writeConsistencyLevel" value="ONE" />
+	                   <property name="configurationPropertiesFile" value="cassandrapool.properties" />         
+	                   <property name="keyMapper" value="org.infinispan.lucene.LuceneKey2StringMapper" />
+	           </properties>
+	      </loader>
+        </loaders>
+    </namedCache>
+
+    <!-- **************************** -->
+    <!--  Cache to store Lucene data  -->
+    <!-- **************************** -->
+    <namedCache name="LuceneIndexesData">
+        <clustering mode="distribution">
+            <stateRetrieval fetchInMemoryState="false" logFlushTimeout="30000" />
+            <sync replTimeout="25000" />
+        </clustering>
+	    <loaders passivation="false" shared="true" preload="false">
+	    <loader class="org.infinispan.loaders.cassandra.CassandraCacheStore"
+		  	fetchPersistentState="true" ignoreModifications="false" purgeOnStartup="false">
+	           <properties>
+	                   <property name="host" value="localhost" />
+	                   <property name="keySpace" value="LuceneIndexesDataInfinispan" />
+	                   <property name="entryColumnFamily" value="LuceneIndexesDataInfinispanEntries" />
+	                   <property name="expirationColumnFamily" value="LuceneIndexesDataInfinispanExpiration" />
+	                   <property name="sharedKeyspace" value="false" />
+	                   <property name="readConsistencyLevel" value="ONE" />
+	                   <property name="writeConsistencyLevel" value="ONE" />
+	                   <property name="configurationPropertiesFile" value="cassandrapool.properties" />         
+	                   <property name="keyMapper" value="org.infinispan.lucene.LuceneKey2StringMapper" />
+	           </properties>
+	      </loader>
+        </loaders>
+    </namedCache>
+
+    <!-- ***************************** -->
+    <!--  Cache to store Lucene locks  -->
+    <!-- ***************************** -->
+    <namedCache name="LuceneIndexesLocking">
+        <clustering mode="distribution">
+            <stateRetrieval fetchInMemoryState="false" logFlushTimeout="30000" />
+            <sync replTimeout="25000" />
+        </clustering>
+	    <loaders passivation="false" shared="true" preload="false">
+	    <loader class="org.infinispan.loaders.cassandra.CassandraCacheStore"
+		  	fetchPersistentState="true" ignoreModifications="false" purgeOnStartup="false">
+	           <properties>
+	                   <property name="host" value="localhost" />
+	                   <property name="keySpace" value="LuceneIndexesLockingInfinispan" />
+	                   <property name="entryColumnFamily" value="LuceneIndexesLockingInfinispanEntries" />
+	                   <property name="expirationColumnFamily" value="LuceneIndexesLockingInfinispanExpiration" />
+	                   <property name="sharedKeyspace" value="false" />
+	                   <property name="readConsistencyLevel" value="ONE" />
+	                   <property name="writeConsistencyLevel" value="ONE" />
+	                   <property name="configurationPropertiesFile" value="cassandrapool.properties" />         
+	                   <property name="keyMapper" value="org.infinispan.lucene.LuceneKey2StringMapper" />
+	           </properties>
+	      </loader>
+        </loaders>
+    </namedCache>
+
+</infinispan>

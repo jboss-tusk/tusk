@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<jbossesb
+ xmlns="http://anonsvn.labs.jboss.com/labs/jbossesb/trunk/product/etc/schemas/xml/jbossesb-1.2.0.xsd"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://anonsvn.labs.jboss.com/labs/jbossesb/trunk/product/etc/schemas/xml/jbossesb-1.2.0.xsd http://anonsvn.jboss.org/repos/labs/labs/jbossesb/trunk/product/etc/schemas/xml/jbossesb-1.2.0.xsd">
+ <providers>
+  <jms-provider connection-factory="ConnectionFactory" name="document-entry-jms-provider">
+   <jms-bus busid="document-entry-jms-channel-id">
+    <jms-message-filter dest-name="/queue/DocumentEntry" dest-type="QUEUE"/>
+   </jms-bus>
+  </jms-provider>
+ </providers>
+ <services>
+  <service category="jboss-bigdata"
+   description="Entry point for documents." invmScope="GLOBAL" name="DocumentEntry">
+   <listeners>
+    <jms-listener busidref="document-entry-jms-channel-id"
+     is-gateway="true" name="document-entry-jms-listener"/>
+   </listeners>
+   <actions mep="OneWay">
+    <action class="org.jboss.tusk.esb.support.ExceptionActionHandler" name="exception-handler">
+     <property name="exceptionMethod" value="exceptionHandler"/>
+    </action>
+    <action class="org.jboss.tusk.esb.support.ExtendedLogActionHandler" name="logAction">
+     <property name="logLevel" value="INFO"/>
+     <property name="logMessage" value="Received Document"/>
+    </action>
+    <action class="org.jboss.tusk.esb.BigDataExtractor" name="extractIndex">
+     <property name="jndiName" value="BigDataMonitor"/>
+    </action>
+   </actions>
+  </service>
+ </services>
+</jbossesb>

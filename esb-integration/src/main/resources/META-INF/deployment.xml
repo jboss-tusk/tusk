@@ -1,0 +1,10 @@
+<jbossesb-deployment>
+  <!--
+  	This is where all Queue dependencies for the ESB goes, if you are using JMS transport.  
+  	Use the following as an example.
+  	========== 
+  	<depends>org.jboss.tusk.maven:service=Queue,name=ExampleQueue</depends> 
+  -->
+  	<depends>com.jboss.bigdata:service=Queue,name=DocumentEntry</depends>
+  	<depends>jboss.j2ee:jar=esb-integration-0.0.1-SNAPSHOT.esb,name=BigDataMonitorManagementBean,service=EJB3,type=ManagementInterface</depends>
+</jbossesb-deployment>

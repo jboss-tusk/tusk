@@ -1,0 +1,34 @@
+#These commands must be run in the cassandra CLI to create the required schema.
+
+create keyspace Infinispan;
+use Infinispan;
+create column family InfinispanEntries with comparator = BytesType and keys_cached = 0.1;
+create column family InfinispanExpiration with comparator = LongType and keys_cached = 0.1;
+
+
+create keyspace LuceneIndexesMetadataInfinispan;
+use LuceneIndexesMetadataInfinispan;
+create column family LuceneIndexesMetadataInfinispanEntries with comparator = BytesType and keys_cached = 0.1;
+create column family LuceneIndexesMetadataInfinispanExpiration with comparator = LongType and keys_cached = 0.1;
+
+
+create keyspace LuceneIndexesDataInfinispan;
+use LuceneIndexesDataInfinispan;
+create column family LuceneIndexesDataInfinispanEntries with comparator = BytesType and keys_cached = 0.1;
+create column family LuceneIndexesDataInfinispanExpiration with comparator = LongType and keys_cached = 0.1;
+
+
+create keyspace LuceneIndexesLockingInfinispan;
+use LuceneIndexesLockingInfinispan;
+create column family LuceneIndexesLockingInfinispanEntries with comparator = BytesType and keys_cached = 0.1;
+create column family LuceneIndexesLockingInfinispanExpiration with comparator = LongType and keys_cached = 0.1;
+
+
+create keyspace TuskData;
+use TuskData;
+create column family Messages with comparator = UTF8Type and keys_cached = 0.1 and
+column_metadata = [
+    {column_name: body, validation_class: UTF8Type},
+    {column_name: timestamp, validation_class: LongType}];
+
+    

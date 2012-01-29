@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:p="http://jboss.com/person" targetNamespace="http://jboss.com/person/operations" xmlns:tns="http://jboss.com/person/operations" elementFormDefault="qualified">
+	<import namespace="http://jboss.com/person" schemaLocation="person.xsd"/>
+
+	<complexType name="UpdatePerson">
+		<sequence>
+			<element name="person" type="p:Person"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="AddPerson">
+		<sequence>
+			<element name="person" type="p:Person"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="DeletePerson">
+		<sequence>
+			<element name="id" type="long"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="GetPerson">
+		<sequence>
+			<element name="id" type="long"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="AddAddressToPerson">
+		<sequence>
+			<element name="pid" type="long" minOccurs="1" maxOccurs="1"/>
+			<element name="address" type="p:Address" minOccurs="1" maxOccurs="1"/>
+		</sequence>
+	</complexType>
+	
+	<element name="addPerson" type="tns:AddPerson"/>
+</schema>

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://jboss.com/person" xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+	xmlns:tns="http://jboss.com/person" elementFormDefault="qualified">
+
+	<complexType name="Person">
+		<sequence>
+			<element name="id" type="long" maxOccurs="1" />
+			<element name="name" type="tns:Name" minOccurs="1" maxOccurs="1"/>
+			<element name="address" type="tns:Address" minOccurs="1" />
+		</sequence>
+	</complexType>
+
+	<complexType name="Name">
+		<sequence>
+			<element name="firstName" type="string" minOccurs="1" maxOccurs="1" />
+			<element name="middleName" type="string" minOccurs="0" maxOccurs="1" />
+			<element name="lastName" type="string" minOccurs="1" maxOccurs="1" />
+		</sequence>
+	</complexType>
+
+	<complexType name="Address">
+		<xsd:sequence>
+			<element name="line" type="string" minOccurs="1" maxOccurs="3" />
+			<element name="city" type="string" minOccurs="1" maxOccurs="1"/>
+			<element name="state" type="tns:StateCode" minOccurs="1" maxOccurs="1"/>
+			<element name="zip" type="tns:ZipCode" minOccurs="1" maxOccurs="1"/>
+		</xsd:sequence>
+		<xsd:attribute name="type" type="tns:AddressType"/>
+	</complexType>
+
+	<xsd:simpleType name="StateCode">
+		<xsd:restriction base="xsd:string">
+			<!-- Retrieved State codes from: http://www.usps.com/ncsc/lookups/usps_abbreviations.html -->
+			<xsd:enumeration value="AL" />
+			<xsd:enumeration value="AK" />
+			<xsd:enumeration value="AS" />
+			<xsd:enumeration value="AZ" />
+			<xsd:enumeration value="AR" />
+			<xsd:enumeration value="CA" />
+			<xsd:enumeration value="CO" />
+			<xsd:enumeration value="CT" />
+			<xsd:enumeration value="DE" />
+			<xsd:enumeration value="DC" />
+			<xsd:enumeration value="FM" />
+			<xsd:enumeration value="FL" />
+			<xsd:enumeration value="GA" />
+			<xsd:enumeration value="GU" />
+			<xsd:enumeration value="HI" />
+			<xsd:enumeration value="ID" />
+			<xsd:enumeration value="IL" />
+			<xsd:enumeration value="IN" />
+			<xsd:enumeration value="IA" />
+			<xsd:enumeration value="KS" />
+			<xsd:enumeration value="KY" />
+			<xsd:enumeration value="LA" />
+			<xsd:enumeration value="ME" />
+			<xsd:enumeration value="MH" />
+			<xsd:enumeration value="MD" />
+			<xsd:enumeration value="MA" />
+			<xsd:enumeration value="MI" />
+			<xsd:enumeration value="MN" />
+			<xsd:enumeration value="MS" />
+			<xsd:enumeration value="MO" />
+			<xsd:enumeration value="MT" />
+			<xsd:enumeration value="NE" />
+			<xsd:enumeration value="NV" />
+			<xsd:enumeration value="NH" />
+			<xsd:enumeration value="NJ" />
+			<xsd:enumeration value="NM" />
+			<xsd:enumeration value="NY" />
+			<xsd:enumeration value="NC" />
+			<xsd:enumeration value="ND" />
+			<xsd:enumeration value="MP" />
+			<xsd:enumeration value="OH" />
+			<xsd:enumeration value="OK" />
+			<xsd:enumeration value="OR" />
+			<xsd:enumeration value="PW" />
+			<xsd:enumeration value="PA" />
+			<xsd:enumeration value="PR" />
+			<xsd:enumeration value="RI" />
+			<xsd:enumeration value="SC" />
+			<xsd:enumeration value="SD" />
+			<xsd:enumeration value="TN" />
+			<xsd:enumeration value="TX" />
+			<xsd:enumeration value="UT" />
+			<xsd:enumeration value="VT" />
+			<xsd:enumeration value="VI" />
+			<xsd:enumeration value="VA" />
+			<xsd:enumeration value="WA" />
+			<xsd:enumeration value="WV" />
+			<xsd:enumeration value="WI" />
+			<xsd:enumeration value="WY" />
+			<xsd:enumeration value="AA" />
+			<xsd:enumeration value="AE" />
+			<xsd:enumeration value="AP" />
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	
+	<xsd:simpleType name="AddressType">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="primary" />
+			<xsd:enumeration value="secondary" />
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="ZipCode">
+        <xsd:restriction base="xsd:string">
+            <xsd:pattern value="[0-9]{5}(-[0-9]{4})?"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+</schema>
