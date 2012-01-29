@@ -48,8 +48,8 @@ install the other one.
 --------------------------------------------------
 Building
 --------------------------------------------------
-To install the artifacts into the local repository without executing the unit
-tests:
+Tusk uses Maven for builds and dependency management. To install the artifacts into the
+local repository without executing the unit tests:
 	mvn -Dmaven.test.skip.exec=true clean install
 
 To install the artifacts into the local repository:
@@ -97,7 +97,47 @@ line as well if you prefer command line builds.
 You can find a sample Maven settings.xml file in the conf directory. It must have a
 jboss.soa.path variable that points to the jboss-as directory of your SOA-P installation.
 
-You will also need to install a Git plugin. TODO - provide more info.
+Tusk uses git for version control. You should install and configure the git command line
+client. Check out http://help.github.com/linux-set-up-git/. You can use yum for installing
+git and not bother with synaptic. The important part is the SSh setup and your local config
+settings for name and email. 
+
+You will also need to install the egit plugin for eclipse, as follows:
+* install egit (team provider) plugin from eclipse marketplace
+	* Help->Eclipse Marketplace->Eclipse Marketplace
+	* Change "All categories" dropdown to "SCM"
+	* Click on "Browse for more solutions" link
+	* Search on "egit"
+	* Install the "EGit - Git Team Provider" plugin
+* Install m2e git scm connector
+	* go to file->new->other
+	* choose maven->checkout maven projects from scm
+	* click on link to find more scm connectors from the m2e marketplace
+	* type egit in filter
+	* install m2e-egit connector
+
+To get the repository into Eclipse so you can work on it, do the following:
+1. Open eclipse
+2. File-Import
+3. Git-Projects from Git
+4. Clone button
+5. Paste "git@github.com:jboss-tusk/tusk.git" into URI field
+6. Choose http for protocol
+7. Next, Next, Next, Finish (repo downloads)
+8. Select the repository you just cloned
+9. Next
+10. Choose "Import as general project"
+11. Finish
+12. Right-click project root directory and choose "Configure->Convert to Maven Project"
+* You can do steps 8-12 for the all modules except conf and bin to treat each as its 
+own project (ie so you can do maven builds on just one module instead of the entire trunk).
+This is not required though.
+
+In order to push to master (if you have permissions) you should set up SSH. For the git 
+setup (see above) you created a keypair and you need to tell Eclipse to use that private key:
+* Preferences menu
+* General->Network connections->SSH2
+* Add private key you created during github setup 
 
 
 --------------------------------------------------
