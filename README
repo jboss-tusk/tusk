@@ -32,7 +32,7 @@ JBoss Enterprise Data Services Platform 	5.2
 JBoss Business Rules Management System		5.2
 Apache Ant									1.8.x
 Apache Maven								3.x
-Apacht Tomcat								6.x
+Apache Tomcat								6.x
 JDK											1.6.x
 
 Hadoop (Cloudera Distribution for Hadoop)	0.20
@@ -185,6 +185,9 @@ JBoss Setup
 --------------------------------------------------
 Tomcat Setup
 --------------------------------------------------
+The Apache Tomcat 6 binary is available at:  http://tomcat.apache.org/download-60.cgi
+-Download:   apache-tomcat-6.0.35.tar.gz
+
 It doesn't matter where this is installed to. Just unzip the distribution and run it on
 demand. Or install it as a service - whatever you want.
 
