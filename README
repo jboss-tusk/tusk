@@ -27,19 +27,19 @@ it makes a REST call to Tomcat. This will hopefully be resolved fairly soon.
 --------------------------------------------------
 Installed Software Versions
 --------------------------------------------------
-JBoss SOA-P									5.2
-JBoss Enterprise Data Services Platform 	5.2
-JBoss Business Rules Management System		5.2
-Apache Ant									1.8.x
-Apache Maven								3.x
-Apacht Tomcat								6.x
-JDK											1.6.x
+JBoss SOA-P                                     5.2
+JBoss Enterprise Data Services Platform         5.2
+JBoss Business Rules Management System          5.2
+Apache Ant                                      1.8.x
+Apache Maven                                    3.x
+Apacht Tomcat                                   6.x
+JDK						1.6.x
 
-Hadoop (Cloudera Distribution for Hadoop)	0.20
-HBase (Cloudera Distribution for Hadoop)	0.20
-Hive (Cloudera Distribution for Hadoop)		0.20
+Hadoop (Cloudera Distribution for Hadoop)       0.20
+HBase (Cloudera Distribution for Hadoop)        0.20
+Hive (Cloudera Distribution for Hadoop)         0.20
 
-Apache Cassandra							1.0
+Apache Cassandra                                1.0
 
 * Note: if you only want to run against Hadoop or Cassandra, you don't have to
 install the other one.
