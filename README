@@ -152,12 +152,16 @@ JBoss Setup
 	-Download the latest ant from http://ant.apache.org/bindownload.cgi.
 	-Unzip the file into /opt.
 	-Create an ANT_HOME environment variable by adding the following lines to /etc/profile
-		export ANT_HOME=/opt/apache-ant-1.8.2
+		export ANT_HOME=/opt/apache-ant-1.8.3
 		export PATH=$PATH:$ANT_HOME/bin
 		
 * EDSP 5.2 and SOA-P 5.2
 	-Download SOA-P, EDSP and BRMS (manager) zip files from Red Hat customer access portal.
-		-TODO get the exact names of the files to download since there are different packages
+	        
+                -SOA-P:   soa-p-5.2.0.GA.zip 
+		-EDSP:    eds-p-5.2.0.GA.zip
+		-BRMS:    brms-p-5.2.0.GA-standalone.zip
+
 	-Unzip soa-5.2.0.GA.zip into the jboss install directory, referred to as $JBOSS_HOME
 		-For example, unzip into /usr/local/jboss/ to have $JBOSS_HOME=/usr/local/jboss/jboss-soa-p-5
 	-Unzip jboss-brms.war into the $JBOSS_HOME/jboss-as/server/default/deploy directory.
