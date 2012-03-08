@@ -44,7 +44,6 @@ Apache Cassandra                                1.0
 * Note: if you only want to run against Hadoop or Cassandra, you don't have to
 install the other one.
 
-
 --------------------------------------------------
 Building
 --------------------------------------------------
