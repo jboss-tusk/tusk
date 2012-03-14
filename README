@@ -33,7 +33,7 @@ JBoss Business Rules Management System          5.2
 Apache Ant                                      1.8.x
 Apache Maven                                    3.x
 Apacht Tomcat                                   6.x
-JDK						1.6.x
+JDK                                             1.6.x
 
 Hadoop (Cloudera Distribution for Hadoop)       0.20
 HBase (Cloudera Distribution for Hadoop)        0.20
