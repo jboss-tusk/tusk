@@ -47,8 +47,7 @@ install the other one.
 --------------------------------------------------
 Building
 --------------------------------------------------
-Tusk uses Maven for builds and dependency management. To install the artifacts into the
-local repository without executing the unit tests:
+Tusk uses Maven for builds and dependency management. To install the artifacts into the local repository without executing the unit tests:
 	mvn -Dmaven.test.skip.exec=true clean install
 
 To install the artifacts into the local repository:
@@ -66,8 +65,7 @@ You can verify that the artifacts were deployed properly by doing the following:
 	You'll see something like:
 		14:17:08,881 INFO  [BigDataExtractor] Extracted index: id[0]
 		14:17:08,897 INFO  [BigDataExtractor] Extracted index: addressLine1[210 N. Church Street]
-	3. Go to the Tusk UI (http://localhost:8888/TuskUI/search.html) and search for
-	the message that you just injected.
+	3. Go to the Tusk UI (http://localhost:8888/TuskUI/search.html) and search for the message that you just injected.
 
 * NOTE: the current tusk codebase version (0.0.1-SNAPSHOT) uses infinispan 5.1.0-SNAPSHOT. There is a
 depedency on infinispan-cachestore-hbase in the ispn-integration module, but that version does not
