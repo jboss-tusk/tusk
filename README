@@ -69,6 +69,21 @@ You can verify that the artifacts were deployed properly by doing the following:
 	3. Go to the Tusk UI (http://localhost:8888/TuskUI/search.html) and search for
 	the message that you just injected.
 
+* NOTE: the current tusk codebase version (0.0.1-SNAPSHOT) uses infinispan 5.1.0-SNAPSHOT. There is a
+depedency on infinispan-cachestore-hbase in the ispn-integration module, but that version does not
+exist in 5.1.x infinispan. It will be in 5.2.x infinispan. So for now, do the following to be able to build:
+	1. Go to https://mojo.consulting.redhat.com/docs/DOC-9673 and download the gz file
+	2. Unzip and copy the infinispan-cachestore-hbase directory into ~/.m2/repository/org/infinispan
+	3. Copy the ~/.m2/repository/org/infinispan/infinispan-cachestore-hbase/5.2.0-SNAPSHOT directory to 
+		~/.m2/repository/org/infinispan/infinispan-cachestore-hbase/5.1.0-SNAPSHOT
+	4. Rename the ~/.m2/repository/org/infinispan/infinispan-cachestore-hbase/5.1.0-SNAPSHOT/*-5.2.0* files to
+		*-5.1.0*
+	#yes, this is making a copy of the 5.2 version to 5.1. it's a hack, but it should work without having to
+	#backport the hbase cachestore to 5.1.
+
+* NOTE: The configured maven repositories do not have jbossesb-rosetta.jar, so do the following:
+	#Copy /path/to/jboss-soa-p-5/jboss-as/server/production/deployers/esb.deployer/lib/jbossesb-rosetta.jar to 
+	#~/.m2/repository/org/jboss/soa/jbossesb-rosetta/5.2.0.SOA/jbossesb-rosetta-5.2.0.SOA.jar
 
 --------------------------------------------------
 Running Tusk
@@ -89,17 +104,21 @@ field contains the data store to run against. TODO update this to read from a co
 Dev Env
 --------------------------------------------------
 Eclipse Helios was used to develop Tusk and it (or a later version) is recommended 
-for development. JBoss Developer Studio will work fine as well. In either case, 
-ensure that the M2Eclipse plugin is installed. You can install Maven on the command
-line as well if you prefer command line builds.
+for development. JBoss Developer Studio should work fine as well. In either case, 
+ensure that the M2Eclipse (m2e) plugin is installed. You can install Maven on the command
+line via "sudo yum install maven" as well if you prefer command line builds.
 
 You can find a sample Maven settings.xml file in the conf directory. It must have a
 jboss.soa.path variable that points to the jboss-as directory of your SOA-P installation.
 
 Tusk uses git for version control. You should install and configure the git command line
 client. Check out http://help.github.com/linux-set-up-git/. You can use yum for installing
-git and not bother with synaptic. The important part is the SSh setup and your local config
-settings for name and email. 
+git (sudo yum install git) and not bother with synaptic. The important part is the SSH setup 
+and your local config settings for name and email. If you are using the tuskvm virtual machine,
+you don't have to do the ssh config as there is already a key created in ~/.ssh/. But you do 
+still have to set your git name and email via:
+	git config --global user.name "Changeme Now"
+	git config --global user.email "changeme@changeme.com"
 
 You will also need to install the egit plugin for eclipse, as follows:
 * install egit (team provider) plugin from eclipse marketplace
@@ -119,22 +138,28 @@ To get the repository into Eclipse so you can work on it, do the following:
 1. Open eclipse
 2. File-Import
 3. Git-Projects from Git
-4. Clone button
+4. choose "uri"
 5. Paste "git@github.com:jboss-tusk/tusk.git" into URI field
 6. Choose http for protocol
-7. Next, Next, Next, Finish (repo downloads)
-8. Select the repository you just cloned
-9. Next
-10. Choose "Import as general project"
-11. Finish
-12. Right-click project root directory and choose "Configure->Convert to Maven Project"
+7. Next, Next, Next
+8. Choose "Import as general project"
+9. Finish
+10. Right-click project root directory and choose "Configure->Convert to Maven Project"
+11. Copy tusk/conf/example-settings.xml into ~/.m2/settings.xml
+12. Make sure that the soa.path property in ~/.m2/settings.xml is a valid path to your SOA-P
+* To add the project's modules (ie esb-integration) as eclipse projects, do the following:
+	1. Import
+	2. Maven - Existing Maven Project
+	3. Browse to find the module within the tusk project. This should be in /home/tusk/git/tusk
+	4. Click OK/Next/Finish until you are done
+
 * You can do steps 8-12 for the all modules except conf and bin to treat each as its 
 own project (ie so you can do maven builds on just one module instead of the entire trunk).
 This is not required though.
 
 In order to push to master (if you have permissions) you should set up SSH. For the git 
 setup (see above) you created a keypair and you need to tell Eclipse to use that private key:
-* Preferences menu
+* Window -> Preferences menu
 * General->Network connections->SSH2
 * Add private key you created during github setup 
 
@@ -146,8 +171,16 @@ JBoss Setup
 	-Download RPM installer for the the latest JDK 6 from http://www.oracle.com/technetwork/java/javase/downloads/index.html.
 	-Execute the following command: "sudo chmod 755 jdk-6u26-linux-x64-rpm.bin"
 	-Execute the following command: "sudo ./jdk-6u26-linux-x64-rpm.bin"
+	-Set the Oracle JDK to be the default java via:
+		sudo alternatives --install /usr/bin/java java /usr/java/jdk1.6.0_31/jre/bin/java 20000
+		sudo alternatives --install /usr/bin/javaws javaws /usr/java/jdk1.6.0_31/jre/bin/javaws 20000
+		sudo alternatives --install /usr/lib/mozilla/plugins/libjavaplugin.so libjavaplugin.so /usr/java/jdk1.6.0_31/jre/lib/i386/libnpjp2.so 20000
+		sudo alternatives --install /usr/bin/javac javac /usr/java/jdk1.6.0_31/bin/javac 20000
+		sudo alternatives --install /usr/bin/jar jar /usr/java/jdk1.6.0_31/bin/jar 20000
+	
 
 * Apache Ant
+	-Depending on your linux flavor and version, Ant might already be installed. Try "yum list ant".
 	-Download the latest ant from http://ant.apache.org/bindownload.cgi.
 	-Unzip the file into /opt.
 	-Create an ANT_HOME environment variable by adding the following lines to /etc/profile
@@ -157,18 +190,18 @@ JBoss Setup
 * EDSP 5.2 and SOA-P 5.2
 	-Download SOA-P, EDSP and BRMS (manager) zip files from Red Hat customer access portal.
 	        
-                -SOA-P:   soa-p-5.2.0.GA.zip 
+        -SOA-P:   soa-p-5.2.0.GA.zip 
 		-EDSP:    eds-p-5.2.0.GA.zip
 		-BRMS:    brms-p-5.2.0.GA-standalone.zip
 
 	-Unzip soa-5.2.0.GA.zip into the jboss install directory, referred to as $JBOSS_HOME
 		-For example, unzip into /usr/local/jboss/ to have $JBOSS_HOME=/usr/local/jboss/jboss-soa-p-5
-	-Unzip jboss-brms.war into the $JBOSS_HOME/jboss-as/server/default/deploy directory.
 	-Unzip eds-5.2.0.GA.zip into $JBOSS_HOME
 	-Change directory to $JBOSS_HOME/eds.
 	-Run the following command: "ant"
 		-Choose the "default" server profile.
 		-Install Apache CXF.
+	-Unzip jboss-brms.war into the $JBOSS_HOME/jboss-as/server/default/deploy directory.
 	-Change directory to $JBOSS_HOME/jboss-as/server/default/conf/props.
 	-Edit soa-users.properties.
 		admin=admin
@@ -189,10 +222,12 @@ JBoss Setup
 Tomcat Setup
 --------------------------------------------------
 It doesn't matter where this is installed to. Just unzip the distribution and run it on
-demand. Or install it as a service - whatever you want.
+demand. Or install it as a service - whatever you want. The easiest way to install it is
+via "sudo yum install tomcat".
 
 The most important thing is to change the configuration to use port 8888 for HTTP. To do
-this edit the conf/server.xml file and change the HTTP connector.
+this edit the conf/server.xml file and change the HTTP connector. If you installed via yum
+the file is at /etc/tomcat/server.xml.
 
 
 --------------------------------------------------
@@ -210,6 +245,8 @@ Hadoop (HDFS, HBase, MapReduce, Hive) Setup
 	sudo rpm --import http://archive.cloudera.com/redhat/cdh/RPM-GPG-KEY-cloudera
 	sudo yum install hadoop-0.20-conf-pseudo
 	sudo yum install hadoop-hbase
+	#This causes hadoop-zookeeper to be installed in the latest version, so you might not
+	#have to install that below. It'll tell you if it's already installed when you try.
 	sudo yum install hadoop-hive
 	sudo vim /etc/security/limits.conf
 		hdfs  -       nofile  32768
@@ -242,14 +279,33 @@ Hadoop (HDFS, HBase, MapReduce, Hive) Setup
 		    <value>1</value>
 		    <description>The replication count for HLog and HFile storage. Should not be greater than HDFS datanode count.</description>
 		  </property>
+		  <property>
+		    <name>hbase.zookeeper.property.maxClientCnxns</name>
+		    <value>200</value>
+		    <final>true</final>
+		  </property>
 		</configuration>
+		
 	sudo yum install hadoop-zookeeper-server
 	sudo service hadoop-zookeeper-server start
 	sudo vim /etc/zookeeper/zoo.cfg
+		#Change 'server.0=localhost:2888:3888' to 'server.0=<HOST_NAME>:2888:3888'
+		#<HOST_NAME> must be a valid host name that resolves to localhost in /etc/hosts.
+		#Add a host name to that file if necessary. It cannot be "localhost" or "127.0.0.1"
+		#Also, add the following line at the bottom: 
+			maxClientCnxns=200
 	
 	sudo service hadoop-hbase-master start
 	sudo yum install hadoop-hbase-regionserver
 	sudo service hadoop-hbase-regionserver start
+
+	mkdir ~/bin
+	#Copy the *-tusk.sh scripts from the bin directory in the tusk project (from git)
+	#into the ~/bin directory. Make sure their mode is 744.
+	#Make sure that your ~/bin directory is on your path. You can do this by adding
+	#the following lines to ~/.bash_profile
+		PATH=$PATH:$HOME/bin
+		export PATH
 
 	sudo -u hdfs hadoop fs -mkdir /tmp
 	sudo -u hdfs hadoop fs -chmod g+w /tmp
@@ -282,22 +338,6 @@ to be started again. If hive/hbase are not working, then the first thing to do i
 	$ sudo service hadoop-zookeeper-server restart
 	$ sudo service hadoop-hbase-master restart
 	$ sudo service hadoop-hbase-regionserver restart
-
--If you start the hbase shell and run a command and you see the following error message:
-	FATAL zookeeper.ZKConfig: The server in zoo.cfg cannot be set to localhost in a fully-distributed setup because it won't be reachable.
-then do the following:
-	In /etc/zookeeper/zoo.cfg, change the server name in server.0 from 'localhost' to the actual server name.
-
--If you see errors about zookeeper connection limits, do the following:
-	In /etc/hbase/conf/hbase-site.xml, add the following property:
-		<property>
-		  <name>hbase.zookeeper.property.maxClientCnxns</name>
-		  <value>200</value>
-		  <final>true</final>
-		</property>
-	In /etc/zookeeper/zoo.cfg, add the following property:
-		maxClientCnxns=200 
-	Restart the following daemons: hadoop-hbase-master, hadoop-hbase-regionserver, hadoop-zookeeper-server
 
 
 --------------------------------------------------

@@ -40,7 +40,7 @@
 			</pluginRepositories>
 			<properties>
 				<jboss.soa.version>5.1.0.SOA</jboss.soa.version>
-				<jboss.soa.path>/usr/local/jboss/jboss-soa-p-5/jboss-as</jboss.soa.path>
+				<jboss.soa.path>/home/tusk/java/jboss-soa-p-5/jboss-as</jboss.soa.path>
 			</properties>
 		</profile>
 	</profiles>
