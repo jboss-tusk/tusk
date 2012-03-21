@@ -43,7 +43,8 @@ import org.junit.Test;
 
 public class HBaseFacadeTest {
 
-   private static final boolean USE_EMBEDDED = true;
+   //private static final boolean USE_EMBEDDED = true;
+   private static final boolean USE_EMBEDDED = false;
 
    private static HBaseFacade HBF;
 
