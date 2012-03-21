@@ -50,7 +50,7 @@
 							<goal>install-file</goal>
 						</goals>
 						<configuration>
-							<file>${jboss.soa.path}/server/production/deploy/jbrules.esb/jbossesb-jbrules.jar</file>
+							<file>${jboss.soa.path}/server/default/deploy/jbrules.esb/jbossesb-jbrules.jar</file>
 							<groupId>org.jboss.soa</groupId>
 							<artifactId>jbossesb-jbrules</artifactId>
 							<packaging>jar</packaging>
@@ -66,7 +66,7 @@
 							<goal>install-file</goal>
 						</goals>
 						<configuration>
-							<file>${jboss.soa.path}/server/production/deployers/esb.deployer/lib/jbossesb-rosetta.jar</file>
+							<file>${jboss.soa.path}/server/default/deployers/esb.deployer/lib/jbossesb-rosetta.jar</file>
 							<groupId>org.jboss.soa</groupId>
 							<artifactId>jbossesb-rosetta</artifactId>
 							<packaging>jar</packaging>
