@@ -6,6 +6,7 @@ public class TuskConfiguration {
 	//change this default value
 	//TODO put the default value in a startup argument or config file (eg /etc/tusk/config.properties)
 	private DataStore dataStore = DataStore.CASSANDRA;
+	//private DataStore dataStore = DataStore.HBASE;
 	
 	public DataStore getDataStore() {
 		return dataStore;

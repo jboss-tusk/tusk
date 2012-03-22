@@ -43,6 +43,7 @@
 	           <property name="expirationColumnFamily" value="X"/>
 	           <property name="expirationValueField" value="XV"/>
 	           <property name="sharedTable" value="true"/>
+                   <property name="keyMapper" value="org.infinispan.loaders.keymappers.MarshalledValueOrPrimitiveMapper" />
 	        </properties>
 	        <singletonStore enabled="false" pushStateWhenCoordinator="true" pushStateTimeout="20000"/>
 	        <!--async enabled="true" flushLockTimeout="15000" threadPoolSize="5"/-->

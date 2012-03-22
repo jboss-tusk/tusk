@@ -86,9 +86,9 @@ public class InfinispanServiceTest {
 		keys.add("disease");
 		keys.add("state");
 		keys.add("patientId");
-		for (int i = 0; i < 100; i++) {
-			ispnService.removeIndex("msg" + i, keys);
-		}
+		//for (int i = 0; i < 100; i++) {
+		//	ispnService.removeIndex("msg" + i, keys);
+		//}
 	}
 	
 	@After

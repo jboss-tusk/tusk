@@ -52,7 +52,7 @@
             <stateRetrieval
                 timeout="20000"
                 logFlushTimeout="30000"
-                fetchInMemoryState="true"
+                fetchInMemoryState="false"
                 alwaysProvideInMemoryState="true" />
 
             <!-- Network calls are synchronous by default -->
@@ -102,7 +102,8 @@
 	                   <property name="readConsistencyLevel" value="ONE" />
 	                   <property name="writeConsistencyLevel" value="ONE" />
 	                   <property name="configurationPropertiesFile" value="cassandrapool.properties" />         
-	                   <property name="keyMapper" value="org.infinispan.lucene.LuceneKey2StringMapper" />
+	                   <!--property name="keyMapper" value="org.infinispan.lucene.LuceneKey2StringMapper" /-->
+			   <property name="keyMapper" value="org.infinispan.loaders.keymappers.MarshalledValueOrPrimitiveMapper" />
 	           </properties>
 	      </loader>
         </loaders>
@@ -128,7 +129,8 @@
 	                   <property name="readConsistencyLevel" value="ONE" />
 	                   <property name="writeConsistencyLevel" value="ONE" />
 	                   <property name="configurationPropertiesFile" value="cassandrapool.properties" />         
-	                   <property name="keyMapper" value="org.infinispan.lucene.LuceneKey2StringMapper" />
+	                   <!--property name="keyMapper" value="org.infinispan.lucene.LuceneKey2StringMapper" /-->
+			   <property name="keyMapper" value="org.infinispan.loaders.keymappers.MarshalledValueOrPrimitiveMapper" />
 	           </properties>
 	      </loader>
         </loaders>
@@ -154,7 +156,8 @@
 	                   <property name="readConsistencyLevel" value="ONE" />
 	                   <property name="writeConsistencyLevel" value="ONE" />
 	                   <property name="configurationPropertiesFile" value="cassandrapool.properties" />         
-	                   <property name="keyMapper" value="org.infinispan.lucene.LuceneKey2StringMapper" />
+	                   <!--property name="keyMapper" value="org.infinispan.lucene.LuceneKey2StringMapper" /-->
+			   <property name="keyMapper" value="org.infinispan.loaders.keymappers.MarshalledValueOrPrimitiveMapper" />
 	           </properties>
 	      </loader>
         </loaders>

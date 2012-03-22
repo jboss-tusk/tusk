@@ -54,13 +54,24 @@ To install the artifacts into the local repository:
 	mvn clean install 
 
 Once the artifacts are built, deploy them via the following:
-	1. Copy the esb-integration-*.esb file into the SOA-P deploy directory
-	2. Copy the TuskUI.war file into the Tomcat webapps directory
+	1. Start SOA-P
+		ie: ~/java/jboss-soa-p-5/jboss-as/bin/run.sh
+	2. Deploy the BRMS rules
+		a. Go to http://localhost:8080/jboss-brms and log on with admin/admin. Do not install samples.
+		b. Click on 'Knowledge Bases' bar in the accordion menu to the left, then 'Create New -> New Package'.
+		c. Click Import from drl file' and browse to ~/git/tusk/drools-dsl-xml/src/main/resources/xpath-rules.drl
+		d. Click on 'Create New -> Upload POJO Model Jar', enter 'TuskModel' for the name, then OK, then browse to the ~/git/tusk/drools-dsl-xml/target/drools-dsl-xml-0.0.1-SNAPSHOT.jar and upload it.
+	3. Copy the esb-integration-*.esb file into the SOA-P deploy directory
+		ie: cp ~/git/tusk/esb-integration/target/esb-integration-0.0.1-SNAPSHOT.esb ~/java/jboss-soa-p-5/jboss-as/server/default/deploy/
+	4. Copy the TuskUI.war file into the Tomcat webapps directory (must do as root)
+		ie: sudo cp ~/git/tusk/TuskUI/target/TuskUI.war /var/lib/tomcat/webapps/
+	5. Start tomcaat
+		ie: sudo service tomcat start
 
 You can verify that the artifacts were deployed properly by doing the following:
 	1. Go to the JMX console (http://localhost:8080/jmx-console) and find the
-	BigDataMessengerManagementBean and invoke the stubMessages operation to add a
-	message into the data intake pipeline.
+	BigDataMessengerManagementBean (the second one, with the longer name)  and 
+	invoke the stubMessages operation to add a message into the data intake pipeline.
 	2. View the SOA-P log file to verify that the message was handled properly.
 	You'll see something like:
 		14:17:08,881 INFO  [BigDataExtractor] Extracted index: id[0]
@@ -93,9 +104,10 @@ use them. About a minute should do.
 
 These scripts can be updated to manage SOA-P, Tomcat, and Cassandra if necessary.
 
-The Tusk application can be run against either Hbase or Cassandra. To change which data store
-it runs against, update the TuskConfiguration.java class in the common module. The dataStore
-field contains the data store to run against. TODO update this to read from a config file or run.conf. 
+*** IMPORTANT: The Tusk application can be run against either Hbase or Cassandra. To change which data store
+it runs against, update the TuskConfiguration.java class in the common module and then redeploy (or re-run
+the unit tests). The dataStore field contains the data store to run against. TODO update this to read from a 
+config file or run.conf. 
 
 
 --------------------------------------------------
@@ -344,7 +356,7 @@ Cassandra Setup
 You can install Cassandra anywhere and run it on-demand or as a service.
 
 If running Tusk against cassandra, you must start the cassandra cluster before running the application
-Do this on a single node by running the "cassandra" command in the cassandra/bin directory.
+Do this on a single node by running the "sudo cassandra" command in the cassandra/bin directory.
 The keyspaces for the infinispan cachestore will be created automatically if they are not there
 so no need to create them manually. You must create the keyspace for the main message data store,
 which is "TuskData" by default (see the KeyspaceDefinition lines of code in  BigDataExtractor.java 

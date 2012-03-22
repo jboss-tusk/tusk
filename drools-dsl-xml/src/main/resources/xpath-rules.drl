@@ -1,4 +1,5 @@
-package com.jboss.bigdata.xpath
+//package com.jboss.bigdata.xpath
+package IndexingRules
 dialect "java" 
 
 import org.w3c.dom.Document

@@ -52,7 +52,7 @@
             <stateRetrieval
                 timeout="20000"
                 logFlushTimeout="30000"
-                fetchInMemoryState="true"
+                fetchInMemoryState="false"
                 alwaysProvideInMemoryState="true" />
 
             <!-- Network calls are synchronous by default -->
@@ -107,7 +107,8 @@
 	           <property name="expirationColumnFamily" value="X"/>
 	           <property name="expirationValueField" value="XV"/>
 	           <property name="sharedTable" value="true"/>
-	           <property name="keyMapper" value="org.infinispan.lucene.LuceneKey2StringMapper" />
+	           <!--property name="keyMapper" value="org.infinispan.lucene.LuceneKey2StringMapper" /-->
+		   <property name="keyMapper" value="org.infinispan.loaders.keymappers.MarshalledValueOrPrimitiveMapper" />
 	        </properties>
 	        <singletonStore enabled="false" pushStateWhenCoordinator="true" pushStateTimeout="20000"/>
 	        <!--async enabled="true" flushLockTimeout="15000" threadPoolSize="5"/-->
@@ -140,7 +141,8 @@
 	           <property name="expirationColumnFamily" value="X"/>
 	           <property name="expirationValueField" value="XV"/>
 	           <property name="sharedTable" value="true"/>
-	           <property name="keyMapper" value="org.infinispan.lucene.LuceneKey2StringMapper" />
+	           <!--property name="keyMapper" value="org.infinispan.lucene.LuceneKey2StringMapper" /-->
+		   <property name="keyMapper" value="org.infinispan.loaders.keymappers.MarshalledValueOrPrimitiveMapper" />
 	        </properties>
 	        <singletonStore enabled="false" pushStateWhenCoordinator="true" pushStateTimeout="20000"/>
 	        <!--async enabled="true" flushLockTimeout="15000" threadPoolSize="5"/-->
@@ -173,7 +175,8 @@
 	           <property name="expirationColumnFamily" value="X"/>
 	           <property name="expirationValueField" value="XV"/>
 	           <property name="sharedTable" value="true"/>
-	           <property name="keyMapper" value="org.infinispan.lucene.LuceneKey2StringMapper" />
+	           <!--property name="keyMapper" value="org.infinispan.lucene.LuceneKey2StringMapper" /-->
+		   <property name="keyMapper" value="org.infinispan.loaders.keymappers.MarshalledValueOrPrimitiveMapper" />
 	        </properties>
 	        <singletonStore enabled="false" pushStateWhenCoordinator="true" pushStateTimeout="20000"/>
 	        <!--async enabled="true" flushLockTimeout="15000" threadPoolSize="5"/-->

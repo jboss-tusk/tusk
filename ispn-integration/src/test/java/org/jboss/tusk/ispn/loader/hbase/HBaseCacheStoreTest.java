@@ -40,12 +40,12 @@ public class HBaseCacheStoreTest {
 	static {
 	}
 	
-	@Before
+/*	@Before
 	public void setup() {
 		System.setProperty("java.net.preferIPv4Stack", "true");
 		
 		try {
-			cache = new DefaultCacheManager("bigdata-index-infinispan.xml").getCache();
+			cache = new DefaultCacheManager("bigdata-index-ispn-hbase-test.xml").getCache();
 		} catch (Exception ex) {
 			System.err.println("Got exception creating cache manager: " + ex.getMessage());
 		}
@@ -55,7 +55,7 @@ public class HBaseCacheStoreTest {
 	public void tearDown() {
 		cache.clear();
 		cache.stop();
-	}
+	}*/
 
 //	@Test
 //	public void testCache() throws Exception {
