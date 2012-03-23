@@ -58,9 +58,9 @@ Once the artifacts are built, deploy them via the following:
 		ie: ~/java/jboss-soa-p-5/jboss-as/bin/run.sh
 	2. Deploy the BRMS rules
 		a. Go to http://localhost:8080/jboss-brms and log on with admin/admin. Do not install samples.
-		b. Click on 'Knowledge Bases' bar in the accordion menu to the left, then 'Create New -> New Package'.
-		c. Click Import from drl file' and browse to ~/git/tusk/drools-dsl-xml/src/main/resources/xpath-rules.drl
-		d. Click on 'Create New -> Upload POJO Model Jar', enter 'TuskModel' for the name, then OK, then browse to the ~/git/tusk/drools-dsl-xml/target/drools-dsl-xml-0.0.1-SNAPSHOT.jar and upload it.
+		b. Click on 'Administration' in the left hand accordion menu, then 'Import - Export'
+		c. Browse to import ~/git/tusk/esb-integration/src/test/resources/repository_export.xml.
+		d. For future rule/model changes, deploy those directly in the package.
 	3. Copy the esb-integration-*.esb file into the SOA-P deploy directory
 		ie: cp ~/git/tusk/esb-integration/target/esb-integration-0.0.1-SNAPSHOT.esb ~/java/jboss-soa-p-5/jboss-as/server/default/deploy/
 	4. Copy the TuskUI.war file into the Tomcat webapps directory (must do as root)

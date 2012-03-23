@@ -33,6 +33,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.drools.KnowledgeBase;
 import org.drools.agent.KnowledgeAgent;
+import org.drools.builder.KnowledgeBuilder;
+import org.drools.builder.KnowledgeBuilderFactory;
+import org.drools.io.ResourceFactory;
 import org.drools.runtime.StatelessKnowledgeSession;
 import org.drools.support.BigDataIndex;
 import org.drools.support.xml.XmlMessagePayload;
@@ -258,14 +261,13 @@ public class BigDataExtractor extends JndiBaseActionHandler<BigDataMonitorManage
 			kagent = KnowledgeAgentSingleton.getInstance().getKagent();
 		}
 		
-		/*
-		KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-		kbuilder.add( ResourceFactory.newClassPathResource("xpath-rules.drl"), ResourceType.DRL);
-		if ( kbuilder.hasErrors() ) {
-			throw new ActionLifecycleException("Error building rules: "+kbuilder.getErrors().toString());
-		}
-		*/
 		
+//		KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+//		kbuilder.add( ResourceFactory.newClassPathResource("xpath-rules.drl"), ResourceType.DRL);
+//		if ( kbuilder.hasErrors() ) {
+//			throw new ActionLifecycleException("Error building rules: "+kbuilder.getErrors().toString());
+//		}
+//		
 		
 		return kagent.getKnowledgeBase();
 	}
