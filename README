@@ -235,9 +235,9 @@ It doesn't matter where this is installed to. Just unzip the distribution and ru
 demand. Or install it as a service - whatever you want. The easiest way to install it is
 via "sudo yum install tomcat".
 
-The most important thing is to change the configuration to use port 8888 for HTTP. To do
-this edit the conf/server.xml file and change the HTTP connector. If you installed via yum
-the file is at /etc/tomcat/server.xml.
+The most important thing is to change the configuration to use port 8888 for HTTP and port
+8889 for ajp. To do this edit the conf/server.xml file and change the HTTP/ajp connectors. 
+If you installed via yum the file is at /etc/tomcat/server.xml.
 
 
 --------------------------------------------------
