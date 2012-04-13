@@ -1,0 +1,114 @@
+-------------------------------------------------------------
+:: Dual Booting Fedora 16 and Windows 7
+-------------------------------------------------------------
+
+This guide will show you how to install Fedora 16 to dual boot with your existing Windows 7 install.
+For purposes of this guide we used the full Fedora 16 DVD.  
+
+-------------------------------------------------------------
+:: Making Space Available for the Linux Installation
+-------------------------------------------------------------
+
+1.  Restart your computer correctly and boot into Windows.  Make sure you have no programs running.
+
+2.  Open Windows Disk Management (Right-Click on Computer --> Manage --> Click Disk Management)
+
+3.  Right click on the Windows 7 volume and click 'Shrink Volume'
+
+4.  In Enter the amount of space to shrink in MB; Enter enough for Linux and its swap file.
+
+           **A good rule of thumb here is leave double the amount in mb of your RAM for the swap file and the rest for the actual linux installation
+
+5.  Click the shrink button to shrink the Windows volume by the specified amount.  It may take it some time to complete this process depending on how much you are shrinking the partition by.
+
+6.  After this step is complete, restart Windows 7 at least 2 times to verify that your changes took.  Go into Disk Management after each reboot and verify the free space is there and is the amount you specified.
+
+
+
+-------------------------------------------------------------
+:: Installing Fedora 16
+-------------------------------------------------------------
+
+1.  Insert the Fedora 16 DVD into your DVD drive and restart your machine.  You will need to make sure you boot from CD/DVD.
+
+2.  Select 'Install or upgrade an existing system'.
+
+3.  Continue with the screens until you get to screen about partitioning your hard disk.
+      -Select the appropriate keyboard
+      -Select 'Basic Storage Devices'
+      -Enter a name for your machine
+      -Select the correct city for your time-zone.
+      -Create a Root Password
+
+4.  MAKE SURE YOU SELECT *CREATE CUSTOM LAYOUT*
+
+5.  Highlight the free space that you created in Windows Disk Management for Fedora and click 'Create'
+
+6.  In the Create Storage window, select 'Standard Partition' and click Create.
+
+7.  In the window that opens enter the following:
+      -Mount Point:      select  /   (a forward slash)
+      -File System Type:    select ext4
+      -Allowable Drives, all drives can be enabled.
+      -Size (MB):  Enter all available space here for Fedora, with the exception of leaving 2GB or so for the swap file.   So if 44000MB is available.  Enter 42000MB here. 
+      -Leave the Fixed Size option checked.
+      -Click the OK button to format this partition.
+
+8.  Make note of the name allocated to the new Device you just created (ie sda3, sda 5, sda6 etc.)
+
+9.  Now we need to create the swap space.  Select the remaining free space and click on 'Create'
+
+10. The Create Storage window will open.  Enter the following options:
+
+      -Mount Point:     leave this blank
+      -File System Type:     in the drop down select swap
+      -In Allowable Drives, enable ONLY the drive used by Fedora (sda sdb sdc etc.)
+      -Click on the 'Fill to maximum allowable size' checkbox.
+      -Click on the OK button to create this partition.
+
+11. Click on NEXT after this has been completed and 'Write Changes to Disk' to commit these changes to the Hard Drive.
+
+12. Make sure 'Install boot loader on....' is checked and click the 'Change Device' button next to it.  Select 'First sector of boot partition ~/dev/sd** and click OK.  Where ** is the device name you created above (such as /dev/sda5 etc.)
+
+13.  Using a boot loader password is optional here.
+
+14.  Click Next and close when the process is completed.  After installation is done, remove Fedora installation media from your drive and restart the machine.
+
+
+15.  You will now boot back into Windows 7.
+
+-------------------------------------------------------------
+:: Adding Fedora 16 to your Windows Boot Loader
+-------------------------------------------------------------
+Once your machine is booted back into Windows 7 we can begin the process of adding Linux Fedora 16 as an option in your Windows Boot Loader.
+
+For this, we need to download a free program called 'Easy BCD2.1'.  You can download it via:
+
+http://neosmart.net/EasyBCD/
+
+This will help us easily create new entries in the Windows Boot Loader.
+
+1.  Install and run EasyBCD
+
+2.  Click on 'Add New Entry'
+
+3.  Select the Linux BSD tab under Operating Systems
+
+4.  In Type make sure that GRUB(Legacy) is selected. 
+
+5.  Give your installation a name like 'Linux Fedora 16'.  This will be the name the boot loader displays on startup.
+
+6.  In Device, select the Fedora partition you created above.
+
+7.  Make sure 'Use EasyBCD's copy of GRUB' is unchecked.
+
+8.  Click on 'Add Entry' to add this record to the Windows Boot Loader.
+
+9.  Now we need to modify the timeout of the boot loader menu or it will simply flash then load into windows every single time you boot.  To do this click on 'Edit Boot Menu' on the left hand side of EasyBCD.  Set the 'Boot Default OS after' option to 5 seconds.
+
+10.  Exit EasyBCD and restart your computer.
+
+
+
+You should now be able to select either Windows 7 or Linux Fedora 16 to boot into.
+
