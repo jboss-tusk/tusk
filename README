@@ -447,6 +447,8 @@ You can install Cassandra anywhere and run it on-demand or as a service.
 
 If running Tusk against Cassandra, you must start the Cassandra Cluster before running the application.  Do this on a single node by running the "sudo cassandra" command in the cassandra/bin directory.  The keyspaces for the Infinispan cachestore will be created automatically if they are not there so no need to create them manually.  You must create the keyspace for the main message data store, which is "TuskData" by default (see the KeyspaceDefinition lines of code in BigDataExtractor.java in the esb-integration project).  The ispn-integration/src/main/resources/cassandra-schema.txt file contains the commands to create the Cassandra schema.
 
+NOTE: If you are running Cassandra 1.1.0, you may not need keys_cached = 0.1 clauses and may get errors with them present. If so, remove those clauses.
+
 The current implementation requires a running Cassandra server.  There is an embedded Cassandra server that can be used for testing.  Check out the Cassandra cachestore module in the Infinispan codebase for the code.  If we use it we would have to pre-create the keyspace and column family automatically each time the embedded server is started.  The Infinispan Cassandra cachestore automatically creates a keyspace so we can use that as a guide.
 
 
