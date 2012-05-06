@@ -59,7 +59,7 @@
 							<createChecksum>true</createChecksum>
 						</configuration>
 					</execution>
-					<execution>
+					<!--execution>
 						<id>install-jbossesb-rosetta.jar</id>
 						<phase>validate</phase>
 						<goals>
@@ -74,7 +74,7 @@
 							<generatePom>true</generatePom>
 							<createChecksum>true</createChecksum>
 						</configuration>
-					</execution>
+					</execution-->
 				</executions>
 			</plugin>
 			<plugin>

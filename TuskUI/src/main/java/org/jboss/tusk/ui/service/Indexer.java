@@ -26,6 +26,21 @@ public class Indexer {
 		ispnService = new InfinispanService();
 	}
 
+	@POST
+	@Path("/store/{key}")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String storePost(@PathParam("key") String key, @FormParam("value") String value) {
+		System.out.println("Storing " + key + "->" + value);
+		try {
+			ispnService.writeValue(key, value);
+		} catch (InfinispanException ex) {
+			ex.printStackTrace();
+			System.out.println("Caught InfinispanExcepion storing data: " + ex.getMessage());
+			return "Caught InfinispanExcepion storing data: " + ex.getMessage();
+		}
+		return value.length() + " bytes added to key " + key;
+	}
+
 	@GET
 	@Path("/add/{messageKey}")
 	public String addGet(@PathParam("messageKey") String messageKey, @PathParam("indexes") String indexes) {

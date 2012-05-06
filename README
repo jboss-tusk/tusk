@@ -15,7 +15,7 @@
 	a.  Maven
 
 	b.  Git
-                1. Installing Git
+		1. Installing Git
 		2. Registering a GitHub Account
 		3. Generating SSH Key
 		4. Configuring your Git Settings
@@ -37,6 +37,8 @@
 		  4. Hive DDL
 
 	f.  Cassandra Setup
+	
+	g.  MySQL Setup
 
 3)  Building
 	a.  Installing Artifacts
@@ -91,6 +93,9 @@ HBase (Cloudera Distribution for Hadoop)        0.20
 Hive (Cloudera Distribution for Hadoop)         0.20
 
 Apache Cassandra                                1.0
+
+MySQL                                           5.x
+
 ------------------------------
 For Development Environments:
 ------------------------------
@@ -449,6 +454,27 @@ If running Tusk against Cassandra, you must start the Cassandra Cluster before r
 
 The current implementation requires a running Cassandra server.  There is an embedded Cassandra server that can be used for testing.  Check out the Cassandra cachestore module in the Infinispan codebase for the code.  If we use it we would have to pre-create the keyspace and column family automatically each time the embedded server is started.  The Infinispan Cassandra cachestore automatically creates a keyspace so we can use that as a guide.
 
+:: (G) MySQL Setup
+-------------------------------------------------------------
+
+Install MySQL with the following command:
+
+        sudo yum install mysql
+
+Once installed, initialize MySQL via the following: *TBD - need to validate these on a clean installation
+
+        TBD - steps to set root user's password
+        mysql -uroot -p
+        mysql> create database tusk;
+        mysql> use tusk;
+        mysql> grant all privileges on tusk.* to 'tusk'@'localhost' identified by 'tuskfun';
+        mysql> create table risk_profile (zip char(5) not null, num_hospitals tinyint default 0, risk_factor numeric(1,1) default 0.5);
+        mysql> insert into risk_profile values ('86001', 4, 0.1), ('93001', 0, 1.0), ('72001', 1, 0.7), ('81001', 2, 0.3), ('90001', 3, 0.1);
+        mysql> insert into risk_profile values ('95002', 1, 1.0), ('72002', 1, 0.8), ('90002', 0, 1.0), ('94002', 2, 0.5), ('06002', 1, 0.6);
+        mysql> insert into risk_profile values ('96002', 1, 0.3), ('80002', 0, 1.0), ('96003', 2, 0.5), ('80003', 3, 0.2), ('72003', 5, 0.0);
+        mysql> insert into risk_profile values ('85003', 4, 0.0), ('85003', 1, 1.0), ('81003', 2, 0.4), ('95003', 3, 0.8), ('93003', 1, 0.9); 
+        mysql> insert into risk_profile values ('90003', 6, 0.9), ('92003', 2, 0.3), ('81004', 1, 0.8), ('80004', 4, 0.2), ('36003', 2, 0.4), ('85003', 2, 0.5);
+        
 
 -------------------------------------------------------------
 :: 3) Building

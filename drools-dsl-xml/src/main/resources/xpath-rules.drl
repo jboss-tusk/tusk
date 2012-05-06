@@ -54,3 +54,14 @@ rule "Extraction AddressLine1 Index"
 		XPathAbstractIndexEvaluator xie = new XPathStringIndexEvaluator(namespaces, "//per:address/per:line[1]", "addressLine1");
 		insert(xie);
 end
+
+
+rule "Extraction Zip Index"
+	when
+		$d : XmlMessagePayload( )
+	then
+		Map<String, String> namespaces = new HashMap<String, String>();
+		namespaces.put("per", "http://jboss.com/person");
+		XPathAbstractIndexEvaluator xie = new XPathStringIndexEvaluator(namespaces, "//per:zip", "zip");
+		insert(xie);
+end

@@ -39,6 +39,8 @@ import org.drools.io.ResourceFactory;
 import org.drools.runtime.StatelessKnowledgeSession;
 import org.drools.support.BigDataIndex;
 import org.drools.support.xml.XmlMessagePayload;
+import org.infinispan.Cache;
+import org.infinispan.manager.DefaultCacheManager;
 import org.jboss.tusk.common.TuskCassandraConfiguration;
 import org.jboss.tusk.common.TuskConfiguration;
 import org.jboss.tusk.common.DataStore;
@@ -83,6 +85,9 @@ public class BigDataExtractor extends JndiBaseActionHandler<BigDataMonitorManage
 	//for HBase
 	private MessagePersister messagePersister = null;
 	
+	//for Infinispan
+	private static Cache<Object, Object> ispnDataStore = null;
+	
 	static {
 		if (configuration.getDataStore().equals(DataStore.CASSANDRA)) {
 			//TODO make a CassandraFacade class that encapsulates all the cassandra stuff
@@ -101,6 +106,8 @@ public class BigDataExtractor extends JndiBaseActionHandler<BigDataMonitorManage
 			LOG.debug("Hector cfTemplate=" + cfTemplate);
 		} else if (configuration.getDataStore().equals(DataStore.HBASE)) {
 			//init is in ctor
+		} else if (configuration.getDataStore().equals(DataStore.INFINISPAN)) {
+			//nothing to do
 		}
 		
 //		System.setProperty("java.net.preferIPv4Stack", "true");
@@ -113,6 +120,8 @@ public class BigDataExtractor extends JndiBaseActionHandler<BigDataMonitorManage
 			//init is in static block
 		} else if (configuration.getDataStore().equals(DataStore.HBASE)) {
 			messagePersister = new MessagePersister();
+		} else if (configuration.getDataStore().equals(DataStore.INFINISPAN)) {
+			//init is in static block
 		}
 	}
 	
@@ -236,6 +245,21 @@ public class BigDataExtractor extends JndiBaseActionHandler<BigDataMonitorManage
 				throw new ActionProcessingException("Got HBaseException writing " +
 						"message to data storage: " + ex.getMessage());
 			}
+		} else if (configuration.getDataStore().equals(DataStore.INFINISPAN)) {
+//			try {
+//				ispnService.writeValue(messageKey, messageBodyBytes);
+//			} catch (InfinispanException ex) {
+//				throw new ActionProcessingException("Exception happened while " +
+//				"writing payload to Infinispan grid.", ex);
+//			}
+			
+			//use the tomcat rest service
+			Form f = new Form();
+			f.add("value", new String(messageBodyBytes));
+			Client c = Client.create();
+			WebResource r = c.resource("http://localhost:8888/TuskUI/rest/indexer/store/" + messageKey);
+			String indexResponse = r.type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).accept(MediaType.TEXT_PLAIN).post(String.class, f);
+		    LOG.info("Done storing value for key " + messageKey + "; response was " + indexResponse);
 		}
 	}
 	
@@ -246,7 +270,8 @@ public class BigDataExtractor extends JndiBaseActionHandler<BigDataMonitorManage
 //			throw new ActionProcessingException("Exception happened while " +
 //			"writing index to Infinispan cache.", ex);
 //		}
-		
+
+		//use the tomcat rest service
 		Form f = new Form();
 		f.add("indexes", serializeMap(indexFields));
 		Client c = Client.create();

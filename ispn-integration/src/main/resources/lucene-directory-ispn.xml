@@ -90,23 +90,6 @@
             <stateRetrieval fetchInMemoryState="false" logFlushTimeout="30000" />
             <sync replTimeout="25000" />
         </clustering>
-	    <loaders passivation="false" shared="true" preload="false">
-	    <loader class="org.infinispan.loaders.cassandra.CassandraCacheStore"
-		  	fetchPersistentState="true" ignoreModifications="false" purgeOnStartup="false">
-	           <properties>
-	                   <property name="host" value="localhost" />
-	                   <property name="keySpace" value="LuceneIndexesMetadataInfinispan" />
-	                   <property name="entryColumnFamily" value="LuceneIndexesMetadataInfinispanEntries" />
-	                   <property name="expirationColumnFamily" value="LuceneIndexesMetadataInfinispanExpiration" />
-	                   <property name="sharedKeyspace" value="false" />
-	                   <property name="readConsistencyLevel" value="ONE" />
-	                   <property name="writeConsistencyLevel" value="ONE" />
-	                   <property name="configurationPropertiesFile" value="cassandrapool.properties" />         
-	                   <property name="keyMapper" value="org.infinispan.lucene.LuceneKey2StringMapper" />
-			   <!--property name="keyMapper" value="org.infinispan.loaders.keymappers.MarshalledValueOrPrimitiveMapper" /-->
-	           </properties>
-	      </loader>
-        </loaders>
     </namedCache>
 
     <!-- **************************** -->
@@ -117,23 +100,6 @@
             <stateRetrieval fetchInMemoryState="false" logFlushTimeout="30000" />
             <sync replTimeout="25000" />
         </clustering>
-	    <loaders passivation="false" shared="true" preload="false">
-	    <loader class="org.infinispan.loaders.cassandra.CassandraCacheStore"
-		  	fetchPersistentState="true" ignoreModifications="false" purgeOnStartup="false">
-	           <properties>
-	                   <property name="host" value="localhost" />
-	                   <property name="keySpace" value="LuceneIndexesDataInfinispan" />
-	                   <property name="entryColumnFamily" value="LuceneIndexesDataInfinispanEntries" />
-	                   <property name="expirationColumnFamily" value="LuceneIndexesDataInfinispanExpiration" />
-	                   <property name="sharedKeyspace" value="false" />
-	                   <property name="readConsistencyLevel" value="ONE" />
-	                   <property name="writeConsistencyLevel" value="ONE" />
-	                   <property name="configurationPropertiesFile" value="cassandrapool.properties" />         
-	                   <property name="keyMapper" value="org.infinispan.lucene.LuceneKey2StringMapper" />
-			   <!--property name="keyMapper" value="org.infinispan.loaders.keymappers.MarshalledValueOrPrimitiveMapper" /-->
-	           </properties>
-	      </loader>
-        </loaders>
     </namedCache>
 
     <!-- ***************************** -->
@@ -144,23 +110,6 @@
             <stateRetrieval fetchInMemoryState="false" logFlushTimeout="30000" />
             <sync replTimeout="25000" />
         </clustering>
-	    <loaders passivation="false" shared="true" preload="false">
-	    <loader class="org.infinispan.loaders.cassandra.CassandraCacheStore"
-		  	fetchPersistentState="true" ignoreModifications="false" purgeOnStartup="false">
-	           <properties>
-	                   <property name="host" value="localhost" />
-	                   <property name="keySpace" value="LuceneIndexesLockingInfinispan" />
-	                   <property name="entryColumnFamily" value="LuceneIndexesLockingInfinispanEntries" />
-	                   <property name="expirationColumnFamily" value="LuceneIndexesLockingInfinispanExpiration" />
-	                   <property name="sharedKeyspace" value="false" />
-	                   <property name="readConsistencyLevel" value="ONE" />
-	                   <property name="writeConsistencyLevel" value="ONE" />
-	                   <property name="configurationPropertiesFile" value="cassandrapool.properties" />         
-	                   <property name="keyMapper" value="org.infinispan.lucene.LuceneKey2StringMapper" />
-			   <!--property name="keyMapper" value="org.infinispan.loaders.keymappers.MarshalledValueOrPrimitiveMapper" /-->
-	           </properties>
-	      </loader>
-        </loaders>
     </namedCache>
 
 </infinispan>

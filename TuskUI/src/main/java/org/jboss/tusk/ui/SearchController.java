@@ -19,6 +19,8 @@ import me.prettyprint.hector.api.exceptions.HectorException;
 import me.prettyprint.hector.api.factory.HFactory;
 
 import org.apache.hadoop.hbase.util.Bytes;
+import org.infinispan.Cache;
+import org.infinispan.manager.DefaultCacheManager;
 import org.jboss.tusk.common.TuskCassandraConfiguration;
 import org.jboss.tusk.common.TuskConfiguration;
 import org.jboss.tusk.common.DataStore;
@@ -36,11 +38,13 @@ public class SearchController extends AbstractTuskController {
 	
 	private static InfinispanService ispnService = null;
 	
+	//for cassandra
 	private static TuskCassandraConfiguration tuskCassConfConf = new TuskCassandraConfiguration();
 	private static Cluster dataCluster = null;
 	private static Keyspace ksp = null;
 	private static ColumnFamilyTemplate<String, String> cfTemplate = null;
 
+	//for hbase
 	private MessagePersister messagePersister = null;
 	
 	static {
@@ -62,7 +66,9 @@ public class SearchController extends AbstractTuskController {
 					ksp, tuskCassConf.getColumnFamily(), StringSerializer.get(), StringSerializer.get());
 			System.out.println("Hector cfTemplate=" + cfTemplate);
 		} else if (configuration.getDataStore().equals(DataStore.HBASE)) {
-			//TODO
+			//init is in ctor
+		} else if (configuration.getDataStore().equals(DataStore.INFINISPAN)) {
+			//init already done above
 		}
 	}
 	
@@ -72,6 +78,8 @@ public class SearchController extends AbstractTuskController {
 		} else if (configuration.getDataStore().equals(DataStore.HBASE)) {
 			//for HBase
 			messagePersister = new MessagePersister();
+		} else if (configuration.getDataStore().equals(DataStore.INFINISPAN)) {
+			//init is in static block
 		}
 	}
 
@@ -126,12 +134,18 @@ public class SearchController extends AbstractTuskController {
 			Map<String, String> messages = new HashMap<String, String>();
 			for (String msgId : results) {
 				String message = "";
+				System.out.println("Loading message " + msgId);
 				try {
 					if (configuration.getDataStore().equals(DataStore.CASSANDRA)) {
 					    ColumnFamilyResult<String, String> result = cfTemplate.queryColumns(msgId);
 					    message = result.getString("body");
 					} else if (configuration.getDataStore().equals(DataStore.HBASE)) {
 						message = Bytes.toString(messagePersister.readMessage(msgId));
+					} else if (configuration.getDataStore().equals(DataStore.INFINISPAN)) {
+						message = ispnService.loadValue(msgId);
+//						byte[] messageBytes = (byte[]) ispnDataStore.get(msgId);
+						System.out.println("  message=" + message);
+//						message = new String(messageBytes);
 					}
 				} catch (HectorException ex) {
 				    System.err.println("Got HectorException reading message " + msgId + ": " + ex.getMessage());

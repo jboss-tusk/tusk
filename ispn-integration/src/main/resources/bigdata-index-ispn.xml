@@ -3,7 +3,7 @@
       xsi:schemaLocation="urn:infinispan:config:5.0 http://www.infinispan.org/schemas/infinispan-config-5.0.xsd"
       xmlns="urn:infinispan:config:5.0">
       
-        <!-- *************************** -->
+    <!-- *************************** -->
     <!-- System-wide global settings -->
     <!-- *************************** -->
 
@@ -12,7 +12,7 @@
             caches. There is no added cost to defining a transport but not creating a cache that uses one, 
             since the transport is created and initialized lazily. -->
         <transport
-            clusterName="BigData-Index-Infinispan-cluster"
+            clusterName="No-Cachestore-Infinispan-Cluster"
             distributedSyncTimeout="50000">
             <!-- Note that the JGroups transport uses sensible defaults if no configuration 
                 property is defined. See the JGroupsTransport javadocs for more flags -->
@@ -25,28 +25,11 @@
           <stateRetrieval fetchInMemoryState="false" logFlushTimeout="30000" />
           <sync replTimeout="25000" />
       </clustering>
-	  <eviction strategy="LIRS" maxEntries="10" />
-	  <loaders passivation="false" shared="true" preload="false">
-	    <loader class="org.infinispan.loaders.cassandra.CassandraCacheStore"
-		  	fetchPersistentState="true" ignoreModifications="false" purgeOnStartup="false">
-	           <properties>
-	                   <property name="host" value="localhost" />
-	                   <property name="keySpace" value="Infinispan" />
-	                   <property name="entryColumnFamily" value="InfinispanEntries" />
-	                   <property name="expirationColumnFamily" value="InfinispanExpiration" />
-	                   <property name="sharedKeyspace" value="false" />
-	                   <property name="readConsistencyLevel" value="ONE" />
-	                   <property name="writeConsistencyLevel" value="ONE" />
-	                   <property name="configurationPropertiesFile" value="cassandrapool.properties" />         
-	                   <property name="keyMapper" value="org.infinispan.loaders.keymappers.DefaultTwoWayKey2StringMapper" />
-			   <!--property name="keyMapper" value="org.infinispan.loaders.keymappers.MarshalledValueOrPrimitiveMapper" /-->
-	           </properties>
-	      </loader>
-	  </loaders>
+	  <eviction strategy="NONE" maxEntries="-1" />
 	  <indexing enabled="true" indexLocalOnly="true">
          <properties>
             <property name="hibernate.search.default.directory_provider" value="infinispan" />
-            <property name="hibernate.search.infinispan.configuration_resourcename" value="lucene-directory-ispn-cassandra.xml" />
+            <property name="hibernate.search.infinispan.configuration_resourcename" value="lucene-directory-ispn.xml" />
             <property name="hibernate.search.infinispan.locking_cachename" value="LuceneIndexesLocking" />
             <property name="hibernate.search.infinispan.data_cachename" value="LuceneIndexesData" />
             <property name="hibernate.search.infinispan.metadata_cachename" value="LuceneIndexesMetadata" />
@@ -56,5 +39,3 @@
 	</default>    
 
 </infinispan>
-
-

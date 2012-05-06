@@ -1,0 +1,31 @@
+<infinispan
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="urn:infinispan:config:5.0 http://www.infinispan.org/schemas/infinispan-config-5.0.xsd"
+      xmlns="urn:infinispan:config:5.0">
+      
+    <!-- *************************** -->
+    <!-- System-wide global settings -->
+    <!-- *************************** -->
+
+    <global>
+        <!-- If the transport is omitted, there is no way to create distributed or clustered 
+            caches. There is no added cost to defining a transport but not creating a cache that uses one, 
+            since the transport is created and initialized lazily. -->
+        <transport
+            clusterName="No-Cachestore-Infinispan-Cluster"
+            distributedSyncTimeout="50000">
+            <!-- Note that the JGroups transport uses sensible defaults if no configuration 
+                property is defined. See the JGroupsTransport javadocs for more flags -->
+        </transport>
+        
+    </global>
+
+	<default>
+      <clustering mode="distribution">
+          <stateRetrieval fetchInMemoryState="false" logFlushTimeout="30000" />
+          <sync replTimeout="25000" />
+      </clustering>
+	  <eviction strategy="NONE" maxEntries="-1" />
+	</default>    
+
+</infinispan>

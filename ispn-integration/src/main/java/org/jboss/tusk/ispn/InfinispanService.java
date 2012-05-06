@@ -20,6 +20,7 @@ import org.jboss.tusk.ispn.InfinispanException;
 import org.jboss.tusk.ispn.index.BigDataIndex;
 import org.jboss.tusk.ispn.index.SearchCriterion;
 import org.jboss.tusk.ispn.index.StringIndex;
+import org.mortbay.log.Log;
 //import org.infinispan.util.logging.Log;
 //import org.infinispan.util.logging.LogFactory;
 
@@ -33,16 +34,23 @@ public class InfinispanService {
 	
 	private static Logger LOG = LoggerFactory.getLogger(InfinispanService.class);
 
-	private static Cache<Object, Object> cache = null;
+	//this is for the indexes
+	private static Cache<Object, Object> indexGrid = null;
+	
+	//this is for data payloads (if Infinispan is the current data store)
+	private static Cache<Object, Object> dataGrid = null;
 	
 	public InfinispanService() {
-		if (cache == null) {
+		if (indexGrid == null) {
 			System.out.println("Creating cache for first time.");
 			try {
 				if (configuration.getDataStore().equals(DataStore.CASSANDRA)) {
-					cache = new DefaultCacheManager("bigdata-index-ispn-cassandra.xml").getCache();
-				} else {
-					cache = new DefaultCacheManager("bigdata-index-ispn-hbase.xml").getCache();
+					indexGrid = new DefaultCacheManager("bigdata-index-ispn-cassandra.xml").getCache();
+				} else if (configuration.getDataStore().equals(DataStore.HBASE)) {
+					indexGrid = new DefaultCacheManager("bigdata-index-ispn-hbase.xml").getCache();
+				} else if (configuration.getDataStore().equals(DataStore.INFINISPAN)) {
+					indexGrid = new DefaultCacheManager("bigdata-index-ispn.xml").getCache();
+					dataGrid = new DefaultCacheManager("bigdata-store-ispn.xml").getCache();
 				}
 			} catch (Exception ex) {
 				System.err.println("Got exception creating cache manager: " + ex.getMessage());
@@ -52,6 +60,36 @@ public class InfinispanService {
 		} else {
 			System.out.println("Already created cache");
 		}
+	}
+	
+	public void writeValue(String key, String value) throws InfinispanException {
+		try {
+			StringValue strVal = new StringValue(value);
+			System.out.println("Writing " + key + "->" + strVal + " to " + dataGrid);
+			synchronized(dataGrid) {
+				dataGrid.put(key, strVal);
+			}
+		} catch (Exception ex) {
+			LOG.error("Got " + ex.getClass().getName() + " writing value: " + ex.getMessage());
+			ex.printStackTrace();
+		}
+	}
+	
+	public String loadValue(String key) throws InfinispanException {
+		try {
+			System.out.println("Loading " + key + " from " + dataGrid);
+			
+			StringValue strVal = null;
+			synchronized(dataGrid) {
+				strVal = (StringValue)dataGrid.get(key);
+			}
+			return strVal.toString();
+		} catch (Exception ex) {
+			LOG.error("Got " + ex.getClass().getName() + " writing value: " + ex.getMessage());
+			ex.printStackTrace();
+		}
+		
+		return null;
 	}
 	
 	/**
@@ -74,14 +112,14 @@ public class InfinispanService {
 		for (Entry<String, Object> entry : fields.entrySet()) {
 			String indexUniqueId = documentId + "_" + entry.getKey();
 			StringIndex strIndex = new StringIndex(entry.getKey(), entry.getValue().toString().toLowerCase(), documentId);
-			System.out.println("About to write " + indexUniqueId + "->" + strIndex + " to " + cache);
+			System.out.println("About to write " + indexUniqueId + "->" + strIndex + " to " + indexGrid);
 			
-			synchronized(cache) {
-				cache.put(indexUniqueId, strIndex);
+			synchronized(indexGrid) {
+				indexGrid.put(indexUniqueId, strIndex);
 			}
 			
 			if (LOG.isDebugEnabled()) {
-				Object val = cache.get(indexUniqueId);
+				Object val = indexGrid.get(indexUniqueId);
 				LOG.debug("Just added and loaded for " + indexUniqueId + "=" + val + " (a " + val.getClass() + ")");
 			}
 		}
@@ -97,8 +135,8 @@ public class InfinispanService {
 	public void removeIndex(String documentId, Set<String> keys) throws InfinispanException {
 		for (String key : keys) {
 			String indexUniqueId = documentId + "_" + key;
-			synchronized(cache) {
-				cache.remove(indexUniqueId);
+			synchronized(indexGrid) {
+				indexGrid.remove(indexUniqueId);
 			}
 			
 			LOG.debug("Removed index " + indexUniqueId);
@@ -114,7 +152,7 @@ public class InfinispanService {
 	public List<String> searchIndex(List<SearchCriterion> criteria, boolean isAndQuery) {
 		List<String> results = new ArrayList<String>();
 
-		SearchManager searchManager = Search.getSearchManager(cache);
+		SearchManager searchManager = Search.getSearchManager(indexGrid);
 		
 		if (criteria.size() < 2) {
 			results = doCombinedQuery(searchManager, criteria, true);
@@ -128,7 +166,7 @@ public class InfinispanService {
 	}
 
 	/**
-	 * Executes a query where results only have to match all
+	 * Executes a query where results have to match all
 	 * of the search criteria.
 	 * @param searchManager
 	 * @param criteria
@@ -228,13 +266,20 @@ public class InfinispanService {
 		List<?> queryResults = query.list();
 
 		LOG.debug("Query \"" + allQuery + "\" returned " + queryResults.size() + " results.");
-		for (Object result : queryResults) {
-			String docId = ((BigDataIndex<?>)result).getDocId();
-			LOG.debug("  " + docId);
-			
-			//don't keep dupes
-			if (!results.contains(docId)) {
-				results.add(docId);
+		
+		if (queryResults != null) {
+			for (Object result : queryResults) {
+				if (result != null) {
+					String docId = ((BigDataIndex<?>)result).getDocId();
+					LOG.debug("  " + docId);
+					
+					//don't keep dupes
+					if (!results.contains(docId)) {
+						results.add(docId);
+					}
+				} else {
+					LOG.warn("Got a result from the search, but it was null.");
+				}
 			}
 		}
 		
@@ -243,8 +288,8 @@ public class InfinispanService {
 	
 	public void clearCache() throws InfinispanException {
 		try {
-			synchronized(cache) {
-				cache.clear();
+			synchronized(indexGrid) {
+				indexGrid.clear();
 			}
 		} catch (Exception ex) {
 			throw new InfinispanException("Caught exception clearing cache: " + ex.getMessage(), ex);
@@ -252,11 +297,11 @@ public class InfinispanService {
 	}
 	
 	public void stopCache() {
-		cache.stop();
+		indexGrid.stop();
 	}
 	
 	public void startCache() {
-		cache.start();
+		indexGrid.start();
 	}
 
 }

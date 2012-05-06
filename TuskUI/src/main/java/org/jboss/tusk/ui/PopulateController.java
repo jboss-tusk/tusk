@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.hadoop.hbase.util.Bytes;
+import org.infinispan.Cache;
+import org.infinispan.manager.DefaultCacheManager;
 import org.jboss.tusk.common.TuskCassandraConfiguration;
 import org.jboss.tusk.common.TuskConfiguration;
 import org.jboss.tusk.common.DataStore;
@@ -34,15 +36,21 @@ import me.prettyprint.hector.api.factory.HFactory;
 public class PopulateController extends AbstractTuskController {
 
 	private static final TuskConfiguration configuration = new TuskConfiguration();
-	private static TuskCassandraConfiguration tuskCassConf = new TuskCassandraConfiguration();
+
 	
 	private static InfinispanService ispnService = null;
 
+	//for Cassandra
+	private static TuskCassandraConfiguration tuskCassConf = new TuskCassandraConfiguration();
 	private static Cluster dataCluster = null;
 	private static Keyspace ksp = null;
 	private static ColumnFamilyTemplate<String, String> cfTemplate = null;
 
+	//for hbase
 	private MessagePersister messagePersister = null;
+	
+	//for Infinispan
+	private static Cache<Object, Object> ispnDataStore = null;
 
 	private static Map<String, Object> dummyMetadata0 = new HashMap<String, Object>();
 	private static Map<String, Object> dummyMetadata1 = new HashMap<String, Object>();
@@ -72,7 +80,9 @@ public class PopulateController extends AbstractTuskController {
 					ksp, tuskCassConf.getColumnFamily(), StringSerializer.get(), StringSerializer.get());
 			System.out.println("Hector cfTemplate=" + cfTemplate);
 		} else if (configuration.getDataStore().equals(DataStore.HBASE)) {
-			//TODO
+			//init is in ctor
+		} else if (configuration.getDataStore().equals(DataStore.INFINISPAN)) {
+			//init already done above
 		}
 		
 		//metadata0
@@ -119,7 +129,7 @@ public class PopulateController extends AbstractTuskController {
 			} 
 //			ispnService.clearCache();
 		} catch (InfinispanException ex) {
-			System.out.println("Got InfinispanException initializing SearchController: " + ex.getMessage());
+			System.err.println("Got InfinispanException initializing SearchController: " + ex.getMessage());
 		}
 	}
 	
@@ -128,6 +138,8 @@ public class PopulateController extends AbstractTuskController {
 			//TODO move stuff from static block in here?
 		} else if (configuration.getDataStore().equals(DataStore.HBASE)) {
 			messagePersister = new MessagePersister();
+		} else if (configuration.getDataStore().equals(DataStore.INFINISPAN)) {
+			//init is in static block
 		}
 	}
 	
@@ -161,6 +173,8 @@ public class PopulateController extends AbstractTuskController {
 					cfTemplate.update(updater);
 				} else if (configuration.getDataStore().equals(DataStore.HBASE)) {
 					messagePersister.writeMessage(key, Bytes.toBytes(message));
+				} else if (configuration.getDataStore().equals(DataStore.INFINISPAN)) {
+					ispnDataStore.put(key, message);
 				}
 			    System.out.println("Done updating");
 			} catch (HectorException ex) {
