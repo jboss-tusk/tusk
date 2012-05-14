@@ -379,8 +379,8 @@ sudo vim /etc/hbase/conf/hbase-site.xml
       </property>
    </configuration>
 
-sudo yum install hadoop-zookeper-server
-sudo service hadoop-zookeper-server start
+sudo yum install hadoop-zookeeper-server
+sudo service hadoop-zookeeper-server start
 sudo vim /etc/zookeeper/zoo.cfg
 
      Change the following line in this file:
