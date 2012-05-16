@@ -42,7 +42,7 @@ public class Indexer {
 	}
 
 	@GET
-	@Path("/add/{messageKey}")
+	@Path("/add/{messageKey}/{indexes}")
 	public String addGet(@PathParam("messageKey") String messageKey, @PathParam("indexes") String indexes) {
 		return doAdd(messageKey, indexes);
 	}
