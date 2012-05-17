@@ -9,6 +9,13 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 
+/**
+ * The MessageStubUtility assembles test messages for the Tusk application.  The stubMessage operation performs
+ * the work necessary to build the list of test messages.
+ * 
+ * @author cabynum (Original author is likely Brad Davis - bdavis@redhat.com)
+ *
+ */
 public class MessageStubUtility {
 
 	private static final String[] firstNames = {"Brad", "Mike", "Luke", "Jamie", "Nathan", "Tim", "Dave", "Lee", "Bruce", "Mike"};
@@ -20,11 +27,24 @@ public class MessageStubUtility {
 
 	private String messageTemplate;
 	
+	/**
+	 * The MessageStubUtility constructor uses a pre-defined template to build the messages to send to
+	 * Tusk.
+	 * 
+	 * @throws IOException
+	 */
 	public MessageStubUtility() throws IOException {
 		InputStream in = this.getClass().getClassLoader().getResourceAsStream("xml/person-template.xml");
 		messageTemplate = IOUtils.toString(in);
 	}
 	
+	/**
+	 * The stubMessages operation is used to retrieve a list of stubbed out messages from this MessageStubUtility
+	 * class.  The caller may specify the number of messages to be stubbed out.
+	 * 
+	 * @param number
+	 * @return
+	 */
 	public List<String> stubMessages(int number) {
 		List<String> stubbed = new ArrayList<String>();
 		
@@ -35,6 +55,13 @@ public class MessageStubUtility {
 		return stubbed;
 	}
 	
+	/**
+	 * The stubMessage operation builds a message structured based off of the template specified in the 
+	 * MessageStubUtility constructor.  The contents of each message is ensured to be unique through the use
+	 * of RandomUtils on each property of the message.
+	 * 
+	 * @return
+	 */
 	public String stubMessage() {
 		String msg = StringUtils.replace(messageTemplate, "${bigdata-index}", Integer.toString(RandomUtils.nextInt(10000)));
 		msg = StringUtils.replace(msg, "${bigdata-first-name}", firstNames[RandomUtils.nextInt(firstNames.length)]);
