@@ -274,8 +274,6 @@ public class BigDataExtractor extends JndiBaseActionHandler<BigDataMonitorManage
 			Form f = new Form();
 			f.add("value", new String(messageBodyBytes));
 			Client c = Client.create();
-			//WebResource r = c.resource("http://localhost:8888/TuskUI/rest/indexer/store/" + messageKey);
-			//String indexResponse = r.type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).accept(MediaType.TEXT_PLAIN).post(String.class, f);
 			WebResource r = c.resource("http://localhost:8888/TuskUI/rest/indexer/store/");
 			String indexResponse = r.path(messageKey).type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).post(String.class, f);
 		    LOG.info("Done storing value for key " + messageKey + "; response was " + indexResponse);
