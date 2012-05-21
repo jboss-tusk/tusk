@@ -488,7 +488,7 @@ Tusk uses Maven for builds and dependency management.
 
 To install the artifacts into the local repository without executing the unit tests use the following command:
 
-        mvn -Dmaven.test.skip.exec=true clean install
+        mvn -Dmaven.test.skip=true clean install
 
 To install the artifacts into the local repository:
 
