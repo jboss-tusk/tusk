@@ -105,7 +105,7 @@ public class Indexer {
 
 	@GET
 	@Path("/add/{messageKey}")
-	public String addGet(@PathParam("messageKey") String messageKey, @PathParam("indexes") String indexes) {
+	public String addGet(@PathParam("messageKey") String messageKey, String indexes) {
 		return doAdd(messageKey, indexes);
 	}
 

@@ -4,8 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 import javax.naming.NamingException;
 import javax.ws.rs.core.MediaType;
@@ -33,27 +33,20 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.drools.KnowledgeBase;
 import org.drools.agent.KnowledgeAgent;
-import org.drools.builder.KnowledgeBuilder;
-import org.drools.builder.KnowledgeBuilderFactory;
-import org.drools.io.ResourceFactory;
 import org.drools.runtime.StatelessKnowledgeSession;
 import org.drools.support.BigDataIndex;
 import org.drools.support.xml.XmlMessagePayload;
-import org.infinispan.Cache;
-import org.infinispan.manager.DefaultCacheManager;
-import org.jboss.tusk.common.TuskCassandraConfiguration;
-import org.jboss.tusk.common.TuskConfiguration;
-import org.jboss.tusk.common.DataStore;
-import org.jboss.tusk.common.TuskHBaseConfiguration;
-import org.jboss.tusk.hadoop.HBaseException;
-import org.jboss.tusk.hadoop.HBaseFacade;
-import org.jboss.tusk.hadoop.service.MessagePersister;
-import org.jboss.tusk.monitoring.BigDataMonitorManagement;
 import org.jboss.soa.esb.ConfigurationException;
 import org.jboss.soa.esb.actions.ActionLifecycleException;
 import org.jboss.soa.esb.actions.ActionProcessingException;
 import org.jboss.soa.esb.helpers.ConfigTree;
 import org.jboss.soa.esb.message.Message;
+import org.jboss.tusk.common.DataStore;
+import org.jboss.tusk.common.TuskCassandraConfiguration;
+import org.jboss.tusk.common.TuskConfiguration;
+import org.jboss.tusk.hadoop.HBaseException;
+import org.jboss.tusk.hadoop.service.MessagePersister;
+import org.jboss.tusk.monitoring.BigDataMonitorManagement;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -61,9 +54,16 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.representation.Form;
 
-//import org.jboss.tusk.ispn.InfinispanException;
-//import org.jboss.tusk.ispn.InfinispanService;
 
+/**
+ * The BigDataExtractor class is responsible for coordinating the extraction of Big Data input that 
+ * comes into Tusk's ESB via the DocumentEntry queue.  BigDataExtractor makes use of a REST service to
+ * store the incoming information.  The information is currently stored in either Cassandra, HBase, or
+ * Infinispan.
+ * 
+ * @author cabynum
+ *
+ */
 public class BigDataExtractor extends JndiBaseActionHandler<BigDataMonitorManagement> {
 
 	private static final TuskConfiguration configuration = new TuskConfiguration();
@@ -73,7 +73,7 @@ public class BigDataExtractor extends JndiBaseActionHandler<BigDataMonitorManage
 	private KnowledgeAgent kagent;
 	private DocumentBuilder parser;
 
-//	private static InfinispanService ispnService = null;
+	//private static InfinispanService ispnService = null;
 	
 	//for Cassandra
 	//TODO should these be static?
@@ -86,7 +86,7 @@ public class BigDataExtractor extends JndiBaseActionHandler<BigDataMonitorManage
 	private MessagePersister messagePersister = null;
 	
 	//for Infinispan
-	private static Cache<Object, Object> ispnDataStore = null;
+	//private static Cache<Object, Object> ispnDataStore = null;
 	
 	static {
 		if (configuration.getDataStore().equals(DataStore.CASSANDRA)) {
@@ -110,8 +110,8 @@ public class BigDataExtractor extends JndiBaseActionHandler<BigDataMonitorManage
 			//nothing to do
 		}
 		
-//		System.setProperty("java.net.preferIPv4Stack", "true");
-//		ispnService = new InfinispanService();
+		//System.setProperty("java.net.preferIPv4Stack", "true");
+		//ispnService = new InfinispanService();
 	}
 	
 	public BigDataExtractor(ConfigTree config) throws ConfigurationException {
@@ -136,6 +136,15 @@ public class BigDataExtractor extends JndiBaseActionHandler<BigDataMonitorManage
 		}
 	}
 	
+	/**
+	 * The process operation takes in an ESB message, does some processing, and returns the message
+	 * up the action pipeline.  The method expects that the information sent in is in XML format and
+	 * throws an exception if the information is unable to be parsed.  For properly formatted input,
+	 * the data is converted to DOM format and rules are run against this to extract the payload and 
+	 * indexes.  The information is then written to the data store.
+	 * 
+	 * @param message
+	 */
 	public Message process(Message message) throws ActionProcessingException {
 		
 		Document document = null;
@@ -192,7 +201,7 @@ public class BigDataExtractor extends JndiBaseActionHandler<BigDataMonitorManage
 			{
 				for(BigDataIndex<?> bdi : payload.getIndexes())
 				{
-					LOG.info("Extracted index: "+bdi);
+					LOG.info("Extracted index: " + bdi);
 					indexFields.put(bdi.getKey(), bdi.getValue());
 				}
 			}
@@ -225,6 +234,14 @@ public class BigDataExtractor extends JndiBaseActionHandler<BigDataMonitorManage
 		return message;
 	}
 
+	/**
+	 * The writePayload operation writes the payloads extracted from the input message to the configured
+	 * data store.  Currently, the payloads are stored by calling a REST service.
+	 * 
+	 * @param messageKey
+	 * @param messageBodyBytes
+	 * @throws ActionProcessingException
+	 */
 	private void writePayload(String messageKey, byte[] messageBodyBytes) throws ActionProcessingException {
 		if (configuration.getDataStore().equals(DataStore.CASSANDRA)) {
 			ColumnFamilyUpdater<String, String> updater = cfTemplate.createUpdater(messageKey);
@@ -257,12 +274,20 @@ public class BigDataExtractor extends JndiBaseActionHandler<BigDataMonitorManage
 			Form f = new Form();
 			f.add("value", new String(messageBodyBytes));
 			Client c = Client.create();
-			WebResource r = c.resource("http://localhost:8888/TuskUI/rest/indexer/store/" + messageKey);
-			String indexResponse = r.type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).accept(MediaType.TEXT_PLAIN).post(String.class, f);
+			WebResource r = c.resource("http://localhost:8888/TuskUI/rest/indexer/store/");
+			String indexResponse = r.path(messageKey).type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).post(String.class, f);
 		    LOG.info("Done storing value for key " + messageKey + "; response was " + indexResponse);
 		}
 	}
 	
+	/**
+	 * The writeIndexes operation writes the indexes extracted from the input message to the configured
+	 * data store.  Currently, the indexes are stored by calling a REST service.
+	 * 
+	 * @param indexFields
+	 * @param messageKey
+	 * @throws ActionProcessingException
+	 */
 	private void writeIndexes(Map<String, Object> indexFields, String messageKey) throws ActionProcessingException {
 //		try {
 //			ispnService.writeIndex(messageKey, indexFields);
@@ -280,6 +305,13 @@ public class BigDataExtractor extends JndiBaseActionHandler<BigDataMonitorManage
 	    LOG.info("Done writing message indexes for key " + messageKey + "; response was " + indexResponse);
 	}
 
+	/**
+	 * This method performs a check to see if a knowledge agent already exists.  If not, the
+	 * knowledge agent is created and it's knowledge base is returned to the caller.  The
+	 * knowledge agent automatically loads the changeset configured in indexing-changeset.xml.
+	 * 
+	 * @return
+	 */
 	private KnowledgeBase getKnowledgeBase() {
 		if(kagent==null)
 		{

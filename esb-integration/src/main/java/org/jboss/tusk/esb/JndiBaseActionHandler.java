@@ -1,10 +1,5 @@
 package org.jboss.tusk.esb;
 
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
@@ -20,6 +15,7 @@ import org.jboss.soa.esb.message.Message;
 public abstract class JndiBaseActionHandler<T> extends AbstractActionLifecycle {
 
 	private static final Log LOG = LogFactory.getLog(JndiBaseActionHandler.class);
+	
 	protected T ejbRef;
 	protected String jndiName;
 	
@@ -41,6 +37,7 @@ public abstract class JndiBaseActionHandler<T> extends AbstractActionLifecycle {
 
 	public abstract Message process(Message message) throws ActionProcessingException;
 	
+	@SuppressWarnings("unchecked")
 	protected T getBean() throws NamingException
 	{		
 		if(ejbRef==null)
