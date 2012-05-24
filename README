@@ -472,9 +472,17 @@ Once installed, initialize MySQL via the following: *TBD - need to validate thes
         mysql> insert into risk_profile values ('86001', 4, 0.1), ('93001', 0, 1.0), ('72001', 1, 0.7), ('81001', 2, 0.3), ('90001', 3, 0.1);
         mysql> insert into risk_profile values ('95002', 1, 1.0), ('72002', 1, 0.8), ('90002', 0, 1.0), ('94002', 2, 0.5), ('06002', 1, 0.6);
         mysql> insert into risk_profile values ('96002', 1, 0.3), ('80002', 0, 1.0), ('96003', 2, 0.5), ('80003', 3, 0.2), ('72003', 5, 0.0);
-        mysql> insert into risk_profile values ('85003', 4, 0.0), ('85003', 1, 1.0), ('81003', 2, 0.4), ('95003', 3, 0.8), ('93003', 1, 0.9); 
-        mysql> insert into risk_profile values ('90003', 6, 0.9), ('92003', 2, 0.3), ('81004', 1, 0.8), ('80004', 4, 0.2), ('36003', 2, 0.4), ('85003', 2, 0.5);
-        
+        mysql> insert into risk_profile values ('85003', 1, 1.0), ('81003', 2, 0.4), ('95003', 3, 0.8), ('93003', 1, 0.9); 
+        mysql> insert into risk_profile values ('90003', 6, 0.9), ('92003', 2, 0.3), ('81004', 1, 0.8), ('80004', 4, 0.2), ('36003', 2, 0.4);
+        mysql> create database crimestats;
+        mysql> use crimestats;
+        mysql> grant all privileges on crimestats.* to 'tusk'@'localhost' identified by 'tuskfun';
+        mysql> create table crimes (zip char(5) not null, num_crimes tinyint default 0);
+        mysql> insert into crimes values ('86001', 11), ('93001', 5), ('72001', 19), ('81001', 23), ('90001', 38);
+        mysql> insert into crimes values ('95002', 13), ('72002', 18), ('90002', 0), ('94002', 27), ('06002', 1);
+        mysql> insert into crimes values ('96002', 11), ('80002', 4), ('96003', 21), ('80003', 13), ('72003', 15);
+        mysql> insert into crimes values ('85003', 10), ('81003', 20), ('95003', 3), ('93003', 13); 
+        mysql> insert into crimes values ('90003', 6), ('92003', 2), ('81004', 16), ('80004', 7), ('36003', 9);
 
 -------------------------------------------------------------
 :: 3) Building
