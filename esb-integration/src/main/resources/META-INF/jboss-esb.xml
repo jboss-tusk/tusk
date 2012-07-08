@@ -3,29 +3,52 @@
  xmlns="http://anonsvn.labs.jboss.com/labs/jbossesb/trunk/product/etc/schemas/xml/jbossesb-1.2.0.xsd"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://anonsvn.labs.jboss.com/labs/jbossesb/trunk/product/etc/schemas/xml/jbossesb-1.2.0.xsd http://anonsvn.jboss.org/repos/labs/labs/jbossesb/trunk/product/etc/schemas/xml/jbossesb-1.2.0.xsd">
  <providers>
-  <jms-provider connection-factory="ConnectionFactory" name="document-entry-jms-provider">
+  <jms-jca-provider connection-factory="XAConnectionFactory" name="document-entry-jms-provider">
    <jms-bus busid="document-entry-jms-channel-id">
-    <jms-message-filter dest-name="/queue/DocumentEntry" dest-type="QUEUE"/>
+    <jms-message-filter dest-name="/queue/DocumentEntry" dest-type="QUEUE" transacted="true"/>
    </jms-bus>
-  </jms-provider>
+  </jms-jca-provider>
+  <!--jms-jca-provider connection-factory="XAConnectionFactory" name="IssuerParentNOI_GetIssuerParentNOIByTrackingNumberQueues">
+   <jms-bus busid="IssuerParentNOI_GetIssuerParentNOIByTrackingNumberGwChannel">
+    <jms-message-filter dest-name="queue/ffe_data_IssuerParentNOI_GetIssuerParentNOIByTrackingNumber_req" dest-type="QUEUE" transacted="false"/>
+   </jms-bus>
+   <activation-config>
+     <property name="dLQMaxResent" value="1"/>
+   </activation-config>
+  </jms-jca-provider-->
+  
  </providers>
  <services>
   <service category="jboss-bigdata"
    description="Entry point for documents." invmScope="GLOBAL" name="DocumentEntry">
    <listeners>
-    <jms-listener busidref="document-entry-jms-channel-id"
+    <jms-listener maxThreads="20" busidref="document-entry-jms-channel-id"
      is-gateway="true" name="document-entry-jms-listener"/>
    </listeners>
    <actions mep="OneWay">
     <action class="org.jboss.tusk.esb.support.ExceptionActionHandler" name="exception-handler">
      <property name="exceptionMethod" value="exceptionHandler"/>
     </action>
-    <action class="org.jboss.tusk.esb.support.ExtendedLogActionHandler" name="logAction">
+    <action class="org.jboss.tusk.esb.support.ExtendedLogActionHandler" name="logStart">
      <property name="logLevel" value="INFO"/>
      <property name="logMessage" value="Received Document"/>
     </action>
-    <action class="org.jboss.tusk.esb.BigDataExtractor" name="extractIndex">
+    <action class="org.jboss.tusk.esb.PayloadExtractor" name="payloadExtractor" />
+    <action class="org.jboss.tusk.esb.support.ExtendedLogActionHandler" name="logPayloadExtracted">
+     <property name="logLevel" value="INFO"/>
+     <property name="logMessage" value="Extracted Payload"/>
+    </action>
+    <action class="org.jboss.tusk.esb.IndexExtractor" name="indexExtractor" />
+    <action class="org.jboss.tusk.esb.support.ExtendedLogActionHandler" name="logIndexExtracted">
+     <property name="logLevel" value="INFO"/>
+     <property name="logMessage" value="Extracted Indices"/>
+    </action>
+    <action class="org.jboss.tusk.esb.PayloadAndIndexPersister" name="persister">
      <property name="jndiName" value="BigDataMonitor"/>
+    </action>
+    <action class="org.jboss.tusk.esb.support.ExtendedLogActionHandler" name="logPersisted">
+     <property name="logLevel" value="INFO"/>
+     <property name="logMessage" value="Persisted Payload and Indices"/>
     </action>
    </actions>
   </service>
