@@ -1,7 +1,8 @@
 package org.jboss.tusk.common;
 
-public enum DataStore {
+public enum DataStoreType {
 	CASSANDRA,
 	HBASE,
-	INFINISPAN
+	INFINISPAN,
+	FILESYSTEM
 }

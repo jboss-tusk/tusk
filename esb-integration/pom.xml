@@ -59,7 +59,7 @@
 							<createChecksum>true</createChecksum>
 						</configuration>
 					</execution>
-					<!--execution>
+					<execution>
 						<id>install-jbossesb-rosetta.jar</id>
 						<phase>validate</phase>
 						<goals>
@@ -74,7 +74,7 @@
 							<generatePom>true</generatePom>
 							<createChecksum>true</createChecksum>
 						</configuration>
-					</execution-->
+					</execution>
 				</executions>
 			</plugin>
 			<plugin>
@@ -147,30 +147,31 @@
 	        <artifactId>management</artifactId>
 	        <version>0.0.1-SNAPSHOT</version>
 	    </dependency>
-	    <dependency>
-	        <groupId>org.jboss.tusk.hadoop</groupId>
-	        <artifactId>hadoop-integration</artifactId>
-	        <version>0.0.1-SNAPSHOT</version>
-	    </dependency>
-	    <dependency>
+	    <!--dependency>
 	        <groupId>org.jboss.tusk.infinispan</groupId>
 	        <artifactId>ispn-integration</artifactId>
 	        <version>0.0.1-SNAPSHOT</version>
-	    </dependency>
-		<dependency>
-			<groupId>org.jboss.tusk.rules</groupId>
-			<artifactId>drools-dsl-xml</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-			<type>jar</type>
-			<scope>compile</scope>
-		</dependency>
+	        <exclusions>
+	        	<exclusion>
+	        		<artifactId>xml-apis</artifactId>
+	        		<groupId>xml-apis</groupId>
+	        	</exclusion>
+	        	<exclusion>
+	        		<artifactId>slf4j-log4j12</artifactId>
+	        		<groupId>org.slf4j</groupId>
+	        	</exclusion>
+	        	<exclusion>
+	        		<artifactId>jackson-core-asl</artifactId>
+	        		<groupId>org.codehaus.jackson</groupId>
+	        	</exclusion>
+	        </exclusions>
+	    </dependency-->
 
 		<dependency>
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 			<version>2.4</version>
 			<type>jar</type>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>commons-logging</groupId>
@@ -196,10 +197,15 @@
 		<dependency>
 			<groupId>org.jboss.soa</groupId>
 			<artifactId>jbossesb-rosetta</artifactId>
-			<version>5.2.0.SOA</version>
+			<version>5.3.0.SOA</version>
 			<type>jar</type>
 			<scope>provided</scope>
 		</dependency>
+        <dependency>
+            <groupId>org.jboss.logmanager</groupId>
+            <artifactId>jboss-logmanager</artifactId>
+            <version>1.2.0.GA</version>
+        </dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
@@ -213,18 +219,6 @@
 			<version>3.0</version>
 			<type>jar</type>
 			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.drools</groupId>
-			<artifactId>drools-core</artifactId>
-			<version>5.2.1.Final</version>
-			<type>jar</type>
-			<scope>compile</scope>
-		</dependency>
-	    <dependency>
-		    <groupId>me.prettyprint</groupId>
-		    <artifactId>hector-core</artifactId>
-		    <version>0.8.0-2</version>
 		</dependency>
 	    
 	    <dependency>
@@ -248,5 +242,10 @@
 	    	<version>1.1.1</version>
 	    	<scope>provided</scope>
 	    </dependency>
+		<dependency>
+		   <groupId>org.codehaus.jackson</groupId>
+		   <artifactId>jackson-mapper-asl</artifactId>
+		   <version>1.4.2</version>
+		 </dependency>
 	</dependencies>
 </project>

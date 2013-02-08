@@ -5,6 +5,8 @@
   	========== 
   	<depends>org.jboss.tusk.maven:service=Queue,name=ExampleQueue</depends> 
   -->
-  	<depends>com.jboss.bigdata:service=Queue,name=DocumentEntry</depends>
+  	<!--depends>com.jboss.bigdata:service=Queue,name=DocumentEntry</depends-->
+  	<jmsQueue>DocumentEntry</jmsQueue>
+  	<jmsQueue>DocumentDriver</jmsQueue>
   	<depends>jboss.j2ee:jar=esb-integration-0.0.1-SNAPSHOT.esb,name=BigDataMonitorManagementBean,service=EJB3,type=ManagementInterface</depends>
 </jbossesb-deployment>

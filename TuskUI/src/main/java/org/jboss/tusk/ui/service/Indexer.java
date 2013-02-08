@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -22,82 +23,41 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
-import me.prettyprint.cassandra.serializers.StringSerializer;
-import me.prettyprint.cassandra.service.template.ColumnFamilyResult;
-import me.prettyprint.cassandra.service.template.ColumnFamilyTemplate;
-import me.prettyprint.cassandra.service.template.ThriftColumnFamilyTemplate;
-import me.prettyprint.hector.api.Cluster;
-import me.prettyprint.hector.api.Keyspace;
-import me.prettyprint.hector.api.ddl.KeyspaceDefinition;
-import me.prettyprint.hector.api.exceptions.HectorException;
-import me.prettyprint.hector.api.factory.HFactory;
-
-import org.apache.hadoop.hbase.util.Bytes;
-import org.jboss.tusk.common.DataStore;
-import org.jboss.tusk.common.TuskCassandraConfiguration;
-import org.jboss.tusk.common.TuskConfiguration;
-import org.jboss.tusk.hadoop.HBaseException;
-import org.jboss.tusk.hadoop.service.MessagePersister;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jboss.tusk.ispn.InfinispanException;
 import org.jboss.tusk.ispn.InfinispanService;
 import org.jboss.tusk.ispn.index.SearchCriterion;
+import org.jboss.tusk.ui.SearchHelper;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
-
 
 
 @Path("/indexer")
 public class Indexer {
 
-	private static final TuskConfiguration configuration = new TuskConfiguration();
-	private static TuskCassandraConfiguration tuskCassConf = new TuskCassandraConfiguration();
+	private static final Log LOG = LogFactory.getLog(Indexer.class);
 
+	private SearchHelper helper = new SearchHelper();
+	
 	private static InfinispanService ispnService = null;
-	
-	//for cassandra
-	private static TuskCassandraConfiguration tuskCassConfConf = new TuskCassandraConfiguration();
-	private static Cluster dataCluster = null;
-	private static Keyspace ksp = null;
-	private static ColumnFamilyTemplate<String, String> cfTemplate = null;
-	
-	//for hbase
-	private MessagePersister messagePersister = null;
 	
 	static {
 		System.setProperty("java.net.preferIPv4Stack", "true");
 		ispnService = new InfinispanService();
-		
-		if (configuration.getDataStore().equals(DataStore.CASSANDRA)) {
-			dataCluster = HFactory.getOrCreateCluster("data-cluster", tuskCassConf.getCluster());
-			System.out.println("Hector dataCluster=" + dataCluster);
-			
-			// This is the keyspace to use for the data we are storing
-			KeyspaceDefinition keyspaceDef = dataCluster.describeKeyspace(tuskCassConf.getKeyspace());
-			System.out.println("Hector keyspaceDef=" + keyspaceDef);
-			
-			ksp = HFactory.createKeyspace(tuskCassConf.getKeyspace(), dataCluster);
-			System.out.println("Hector keyspace=" + ksp);
-			
-			cfTemplate = new ThriftColumnFamilyTemplate<String, String>(
-					ksp, tuskCassConf.getColumnFamily(), StringSerializer.get(), StringSerializer.get());
-			System.out.println("Hector cfTemplate=" + cfTemplate);
-		} else if (configuration.getDataStore().equals(DataStore.HBASE)) {
-			//init is in ctor
-		} else if (configuration.getDataStore().equals(DataStore.INFINISPAN)) {
-			//init already done above
-		}
 	}
 
 	@POST
 	@Path("/store/{key}")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String storePost(@PathParam("key") String key, @FormParam("value") String value) {
-		System.out.println("Storing " + key + "->" + value);
+		LOG.debug("Storing " + key + "->" + value);
 		try {
 			ispnService.writeValue(key, value);
 		} catch (InfinispanException ex) {
 			ex.printStackTrace();
-			System.out.println("Caught InfinispanExcepion storing data: " + ex.getMessage());
+			LOG.error("Caught InfinispanExcepion storing data: " + ex.getMessage());
 			return "Caught InfinispanExcepion storing data: " + ex.getMessage();
 		}
 		return value.length() + " bytes added to key " + key;
@@ -117,23 +77,27 @@ public class Indexer {
 	}
 	
 	private String doAdd(String messageKey, String indexes) {
-		System.out.println("Adding index for messageKey " + messageKey + "->" + indexes);
+		LOG.debug("Adding index for messageKey " + messageKey + "->" + indexes);
+
+		long start = System.currentTimeMillis();
 		
 		//deserialize the indexes
 		Map<String, Object> indexMap = deserializeMap(indexes);
 		
 		//add the indexes to infinispan
 		if (indexMap == null || indexMap.size() == 0) {
-			System.out.println("Nothing to index for messageKey " + messageKey);
+			LOG.debug("Nothing to index for messageKey " + messageKey);
 		} else {
 			try {
 				ispnService.writeIndex(messageKey, indexMap);
 			} catch (InfinispanException ex) {
 				ex.printStackTrace();
-				System.out.println("Caught InfinispanExcepion writing index: " + ex.getMessage());
+				LOG.error("Caught InfinispanExcepion writing index: " + ex.getMessage());
 				return "Caught InfinispanExcepion writing index: " + ex.getMessage();
 			}
 		}
+
+		LOG.info("***WriteIndex: writing index for " + messageKey + " took " + (System.currentTimeMillis() - start) + " ms.");
 		
 		return "added indexes for " + messageKey;
 	}
@@ -147,18 +111,57 @@ public class Indexer {
 				map.put(entry[0], entry[1]);
 			}
 	
-			System.out.println("Deserialized map:");
+			LOG.debug("Deserialized map:");
 			for (Object key : map.keySet()) {
-				System.out.println("  " + key + "=" + map.get(key));
+				LOG.debug("  " + key + "=" + map.get(key));
 			}
 		} catch (Exception ex) {
-			System.out.println("Exception adding index: " + ex.getMessage());
+			LOG.error("Exception adding index: " + ex.getMessage());
 		}
 		
 		return map;
 	}
-	
-	
+
+	@GET
+	@Path("/search/{criteria}")
+	@Produces(MediaType.TEXT_HTML)
+	public String getSearch(@PathParam("criteria") String criteria) {
+		LOG.debug("Searching on " + criteria);
+		
+		if (StringUtils.isEmpty(criteria)) {
+			return "No criteria provided.";
+		}
+
+		//first search to get all entries
+		List<SearchCriterion> searchCriteria = new ArrayList<SearchCriterion>();
+		String[] fields = criteria.split(";");
+		for (String field : fields) {
+			String[] parts = field.split("=");
+			searchCriteria.add(new SearchCriterion(parts[0], parts[1]));
+		}
+		List<String> results = helper.doSearch(searchCriteria, "and");
+		
+		//now load the corresponding messages
+		StringBuffer buf = new StringBuffer();
+		if (results.size() > 0) {
+			try {
+				Map<String, String> messages = helper.loadData(results);
+				for (Entry<String, String> entry : messages.entrySet()) {
+					LOG.debug("Handling message " + entry.getKey());
+					if (buf.length() > 0) {
+						buf.append("|");
+					}
+					buf.append(entry.getKey() + "=" + entry.getValue());
+				}
+			} catch (Exception ex) {
+			    System.err.println("Got " + ex.getClass().getName() + " reading messages: " + ex.getMessage());
+			}
+		}
+		
+		LOG.debug("Returning " + buf.toString());
+		
+		return buf.toString();
+	}
 
 	@GET
 	@Path("/zip")
@@ -171,42 +174,7 @@ public class Indexer {
 	@Path("/zip/{zip}")
 	@Produces(MediaType.TEXT_HTML)
 	public String getZips(@PathParam("zip") String zip) {
-		System.out.println("Getting zip codes" + (zip != null ? " for " + zip : ""));
-
-		//first search to get all entries
-		List<SearchCriterion> searchCriteria = new ArrayList<SearchCriterion>();
-		searchCriteria.add(new SearchCriterion("zip", zip == null ? "*" : zip));
-		List<String> results = ispnService.searchIndex(searchCriteria, true);
-		
-		//now load the corresponding messages
-		StringBuffer buf = new StringBuffer();
-		if (results.size() > 0) {
-			for (String msgId : results) {
-				String message = "";
-				System.out.println("Loading message " + msgId);
-				try {
-					if (configuration.getDataStore().equals(DataStore.CASSANDRA)) {
-					    ColumnFamilyResult<String, String> result = cfTemplate.queryColumns(msgId);
-					    message = result.getString("body");
-					} else if (configuration.getDataStore().equals(DataStore.HBASE)) {
-						message = Bytes.toString(messagePersister.readMessage(msgId));
-					} else if (configuration.getDataStore().equals(DataStore.INFINISPAN)) {
-						message = ispnService.loadValue(msgId);
-					}
-					
-					if (buf.length() > 0) {
-						buf.append("|");
-					}
-					buf.append(extractZip(message) + "," + message);
-				} catch (Exception ex) {
-				    System.err.println("Got " + ex.getClass().getName() + " reading message " + msgId + ": " + ex.getMessage());
-				}
-			}
-		}
-		
-		System.out.println("Returning " + buf.toString());
-		
-		return buf.toString();
+		return getSearch("zip=" + (StringUtils.isEmpty(zip) ? "*" : zip));
 	}
 	
 	private String extractZip(String messageXml) {
@@ -244,7 +212,7 @@ public class Indexer {
 
 			XPathExpression expr = xpath.compile("//per:zip");
 			String zip = (String)expr.evaluate(doc, XPathConstants.STRING);
-			System.out.println("Got zip '" + zip + "'");
+			LOG.debug("Got zip '" + zip + "'");
 			
 //			return zip;
 			
@@ -260,7 +228,7 @@ public class Indexer {
 	@Path("/test")
 	@Produces(MediaType.TEXT_HTML)
 	public String getTestData() {
-		System.out.println("Getting test data");
+		LOG.debug("Getting test data");
 		
 		return "Test Data";
 	}

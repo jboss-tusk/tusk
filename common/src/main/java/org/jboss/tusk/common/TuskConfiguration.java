@@ -10,17 +10,17 @@ package org.jboss.tusk.common;
  */
 public class TuskConfiguration {
 	
-	//TODO put the default value in a startup argument or config file (eg /etc/tusk/config.properties)
+	//Other supported data stores can be found in org.jboss.tusk.common.DataStore.
+	//Try to use a system property first, default to Infinispan if not set.
+	private DataStoreType dataStoreType = DataStoreType.valueOf(
+			System.getProperty("tusk.datastore", DataStoreType.INFINISPAN.toString()));
 	
-	//Other supported data stores can be found in org.jboss.tusk.common.DataStore
-	private DataStore dataStore = DataStore.INFINISPAN;
-	
-	public DataStore getDataStore() {
-		return dataStore;
+	public DataStoreType getDataStoreType() {
+		return dataStoreType;
 	}
 
-	public void setDataStore(DataStore dataStore) {
-		this.dataStore = dataStore;
+	public void setDataStoreType(DataStoreType dataStoreType) {
+		this.dataStoreType = dataStoreType;
 	}
 	
 	

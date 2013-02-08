@@ -1,0 +1,43 @@
+//package com.jboss.bigdata.xpath
+package IndexingRules
+dialect "java" 
+
+import org.w3c.dom.Document
+
+import org.drools.support.BigDataIndex
+import org.drools.support.json.evaluators.JsonAbstractIndexEvaluator
+import org.drools.support.json.evaluators.JsonDateIndexEvaluator
+import org.drools.support.json.evaluators.JsonStringIndexEvaluator
+import org.drools.support.json.JsonMessagePayload
+
+import java.util.Iterator
+import java.util.Map 
+import java.util.HashMap
+
+rule "Extract JSON Index"
+	//for each json index evaluator, extract the indexes.
+	when
+		$d : JsonMessagePayload( )
+		$x : JsonAbstractIndexEvaluator( )
+	then 
+		Iterator<BigDataIndex> bdis = $x.evaluate($d.getPayload());
+
+		if(bdis!=null)
+		{
+			while(bdis.hasNext())
+			{
+				BigDataIndex bdi = bdis.next();
+				$d.getIndexes().add(bdi);
+			}
+		}
+
+end
+
+rule "Extract all JSON Indexes"
+	when
+		$d : JsonMessagePayload( )
+	then
+		String[] fields = {"time", "origIp", "origPort", "destIp", "destPort", "transIp", "transPort"};
+		JsonAbstractIndexEvaluator jie = new JsonStringIndexEvaluator(fields);
+		insert(jie);
+end

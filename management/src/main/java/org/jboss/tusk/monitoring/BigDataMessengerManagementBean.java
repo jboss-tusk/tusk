@@ -19,7 +19,7 @@ import org.jboss.tusk.jms.utility.MessageStubUtility;
 
 /**
  * The BigDataMessengerManagementBean is one of several ways to send information into the Tusk Application.  The
- * class is used soley as a testing mechanism, and pushes one to many stubbed out messages into the application 
+ * class is used solely as a testing mechanism, and pushes one to many stubbed out messages into the application 
  * via the ESB.  This class exposes two (2) stubMessages operations that generate the test message by making use
  * of The MessageStubUtility class.
  * 
@@ -31,12 +31,12 @@ import org.jboss.tusk.jms.utility.MessageStubUtility;
  */
 @Service()
 @Management(BigDataMessengerManagement.class)
-@Depends({"com.jboss.bigdata:name=DocumentEntry,service=Queue"})
+//@Depends({"com.jboss.bigdata:name=DocumentEntry,service=Queue"}) //this one is for JBM
+@Depends({"org.hornetq:module=JMS,type=Queue,name=\"DocumentEntry\""}) //this one is for HornetQ
 public class BigDataMessengerManagementBean implements BigDataMessengerManagement {
 
 	@Resource(mappedName="java:/JmsXA") ConnectionFactory factory;
 	@Resource(mappedName="queue/DocumentEntry") Destination documentQueue;
-	 
 	
 	private final MessageStubUtility msu;
 	
@@ -45,35 +45,55 @@ public class BigDataMessengerManagementBean implements BigDataMessengerManagemen
 	}
 	
 	/**
-	 * The stubMessages operation allows the caller to specify how many messages to send to Tusk.  
+	 * This allows the caller to specify how many XML messages to send to Tusk.  
 	 * This operation is also responsible for passing the messages one by one to be delivered to
 	 * the ESB.
 	 * 
 	 * @param count
 	 */
-	public void stubMessages(int count) {
-		Collection<String> messages = msu.stubMessages(count);
+	public void stubXmlMessages(int count) {
+		Collection<String> messages = msu.stubXmlMessages(count);
 		for(String msg : messages) {
-			sendDocumentObject(msg);
+			sendObject(msg);
 		}
-		
 	}
 
 	/**
-	 * The stubMessages operation by default generates 10 messages to send to Tusk.
+	 * This generates 10 XML messages to send to Tusk.
 	 */
-	public void stubMessages() {
-		stubMessages(10);
+	public void stubXmlMessages() {
+		stubXmlMessages(10);
 	}
 	
 	/**
-	 * The sendDocumentObject method handles the delivery of messages to the ESB via the
+	 * This allows the caller to specify how many JSON messages to send to Tusk.  
+	 * This operation is also responsible for passing the messages one by one to be delivered to
+	 * the ESB.
+	 * 
+	 * @param count
+	 */
+	public void stubJsonMessages(int count) {
+		Collection<String> messages = msu.stubJsonMessages(count);
+		for(String msg : messages) {
+			sendObject(msg);
+		}
+	}
+
+	/**
+	 * This generates 10 JSON messages to send to Tusk.
+	 */
+	public void stubJsonMessages() {
+		stubJsonMessages(10);
+	}
+	
+	/**
+	 * The handles the delivery of messages to the ESB via the
 	 * DocumentEntry queue.  Tusk's DocumentEntry service is listening on this queue and
 	 * accepts the messages for processing.
 	 * 
 	 * @param o
 	 */
-	private void sendDocumentObject(Serializable o) {
+	private void sendObject(Serializable o) {
 		javax.jms.Connection connection = null;
 		Session session = null;
 		MessageProducer producer = null;

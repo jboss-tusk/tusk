@@ -7,12 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.jboss.tusk.common.TuskHBaseConfiguration;
 import org.jboss.tusk.hadoop.HBaseException;
 import org.jboss.tusk.hadoop.HBaseFacade;
-
-//import org.apache.hadoop.hbase.util.Bytes;
+import org.jboss.tusk.hadoop.TuskHBaseConfiguration;
 
 
 /**

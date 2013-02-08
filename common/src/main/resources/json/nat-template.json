@@ -1,0 +1,1 @@
+{"time":"${time}","type":"c","app":"any","orig":"ge-1/0/0.120","origIp":"${origIp}","origPort":"${origPort}","destIp":"${destIp}","destPort":"${destPort}","transIp":"${transIp}","transPort":"${transPort}"}

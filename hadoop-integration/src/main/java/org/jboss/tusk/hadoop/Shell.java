@@ -6,10 +6,14 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Map.Entry;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jboss.tusk.hadoop.service.MessagePersister;
 
 
 public class Shell {
+	
+	private static final Log LOG = LogFactory.getLog(Shell.class);
 	
 	private static MessagePersister mp = new MessagePersister();
 	
@@ -45,22 +49,22 @@ public class Shell {
 			dataSize = new Integer(args[2]);
 		}
 		
-		System.out.println("Running with these options:");
-		System.out.println("  operation=" + operation);
-		System.out.println("  numMessages=" + numMessages);
-		System.out.println("  dataSize=" + dataSize);
+		LOG.debug("Running with these options:");
+		LOG.debug("  operation=" + operation);
+		LOG.debug("  numMessages=" + numMessages);
+		LOG.debug("  dataSize=" + dataSize);
 		
 		if ("add".equals(operation)) {
 			for (int i = 0; i < numMessages; i++) {
 				writeMessage(i, dataSize);
 			}
-			System.out.println("Wrote " + numMessages + " messages " +
+			LOG.debug("Wrote " + numMessages + " messages " +
 			"(with corresponding index entries) to HBase.");
 		} else if ("remove".equals(operation)) {
 			for (int i = 0; i < numMessages; i++) {
 				removeMessage(i);
 			}
-			System.out.println("Removed " + numMessages + " messages " +
+			LOG.debug("Removed " + numMessages + " messages " +
 			"(and corresponding index entries) from HBase.");
 		} else {
 			System.err.println("Unknown operation.");
@@ -107,13 +111,13 @@ public class Shell {
 		
 		byte[] result = mp.readMessage(messageKey);
 		if (!Arrays.equals(result, data)) {
-			System.out.println("Data read after insert did not match up.");
+			LOG.debug("Data read after insert did not match up.");
 		}
 		
 		Map<String, byte[]> indexFields = mp.readMessageIndex(messageKey);
 		for (Entry<String, byte[]> field : indexFields.entrySet()) {
 			if (!Arrays.equals(metadataFields.get(field.getKey()).toString().getBytes(), field.getValue())) {
-				System.out.println("*** Something bad happened. The metadata read from HBase does not match " +
+				LOG.debug("*** Something bad happened. The metadata read from HBase does not match " +
 						"the metadata written to HBase.");
 			}
 		}

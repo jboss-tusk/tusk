@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
@@ -46,8 +48,6 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
  * @since 5.1
  */
 public class HBaseFacade {
-	private static Logger log = LoggerFactory.getLogger(HBaseFacade.class);
+	private static final Log log = LogFactory.getLog(HBaseFacade.class);
 
    private static final int SCAN_BATCH_SIZE = 100;
 

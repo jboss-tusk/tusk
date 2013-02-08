@@ -25,8 +25,11 @@
           <stateRetrieval fetchInMemoryState="false" logFlushTimeout="30000" />
           <sync replTimeout="25000" />
       </clustering>
-	  <eviction strategy="LIRS" maxEntries="10" />
-	  <loaders passivation="false" shared="true" preload="false">
+	  <!--eviction strategy="LIRS" maxEntries="10" /-->
+	  <eviction strategy="NONE" maxEntries="-1" />
+	  <!-- Add async element to the loader element if we can -->
+	  <!--async enabled="true" flushLockTimeout="15000" threadPoolSize="5"/-->
+	  <!--loaders passivation="false" shared="true" preload="false">
 	     <loader class="org.infinispan.loaders.hbase.HBaseCacheStore" 
 	             fetchPersistentState="true" 
 	             purgerThreads="3" 
@@ -43,12 +46,11 @@
 	           <property name="expirationColumnFamily" value="X"/>
 	           <property name="expirationValueField" value="XV"/>
 	           <property name="sharedTable" value="true"/>
-                   <property name="keyMapper" value="org.infinispan.loaders.keymappers.MarshalledValueOrPrimitiveMapper" />
+	           <property name="keyMapper" value="org.infinispan.loaders.keymappers.MarshalledValueOrPrimitiveMapper" />
 	        </properties>
 	        <singletonStore enabled="false" pushStateWhenCoordinator="true" pushStateTimeout="20000"/>
-	        <!--async enabled="true" flushLockTimeout="15000" threadPoolSize="5"/-->
 	     </loader>
-	  </loaders>
+	  </loaders-->
 	  <indexing enabled="true" indexLocalOnly="true">
          <properties>
             <property name="hibernate.search.default.directory_provider" value="infinispan" />

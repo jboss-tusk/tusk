@@ -33,7 +33,11 @@ $(document).ready(function() {
 </head>
 
 <body>
-<div style="float:right;"><img src="images/bcbsfl_logo.jpg" border="0" style="width: 150px; height: 150px;" /></div>
+<div style="float:right;"><img src="images/jboss_logo.png" border="0" style="width: 180px; height: 100px;" />
+<br /><br />
+<a href="populate.html">Go to Data Population Page</a>
+</div>
+
 	<h1>Tusk Search Form</h1>
 	<form action="search.html" method="post">
 		<%= helper.getFieldOptions("field1", request) %>
@@ -84,8 +88,6 @@ $(document).ready(function() {
 			</table>
 		</p>
 	</c:if>
-	<!--hr />
-	<br />
-	<a href="populate.html">Test Data Population Page</a-->
+	
 </body>
 </html>

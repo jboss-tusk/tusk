@@ -14,14 +14,14 @@ import java.util.Iterator
 import java.util.Map 
 import java.util.HashMap
 
-rule "Extract Index"
+rule "Extract XML Index"
 	//for each xpath index evaluator, extract the indexes.
 	when
 		$d : XmlMessagePayload( )
 		$x : XPathAbstractIndexEvaluator( )
 	then 
 		Iterator<BigDataIndex> bdis = $x.evaluate($d.getPayload());
-		
+
 		if(bdis!=null)
 		{
 			while(bdis.hasNext())
@@ -30,10 +30,10 @@ rule "Extract Index"
 				$d.getIndexes().add(bdi);
 			}
 		}
-		
+
 end
 
-rule "Extraction ID Index"
+rule "Extract ID Index"
 	when
 		$d : XmlMessagePayload( )
 	then
@@ -45,7 +45,7 @@ rule "Extraction ID Index"
 end
 
 
-rule "Extraction AddressLine1 Index"
+rule "Extract AddressLine1 Index"
 	when
 		$d : XmlMessagePayload( )
 	then

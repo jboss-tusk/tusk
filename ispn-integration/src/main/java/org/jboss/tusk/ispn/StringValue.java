@@ -1,5 +1,7 @@
 package org.jboss.tusk.ispn;
 
+import java.io.Serializable;
+
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.ProvidedId;
 
@@ -9,7 +11,7 @@ import org.hibernate.search.annotations.ProvidedId;
  *
  */
 @Indexed @ProvidedId
-public class StringValue {
+public class StringValue implements Serializable {
 
 	private String value;
 	

@@ -12,6 +12,11 @@
 	<name>JBoss Big Data Management</name>
 	<description>JBoss Big Data Management Module</description>
 	<dependencies>
+	    <dependency>
+	        <groupId>org.jboss.tusk.common</groupId>
+	        <artifactId>tusk-common</artifactId>
+	        <version>0.0.1-SNAPSHOT</version>
+	    </dependency>
 		<dependency>
 			<groupId>javax.ejb</groupId>
 			<artifactId>ejb-api</artifactId>

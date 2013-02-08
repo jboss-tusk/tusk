@@ -12,7 +12,7 @@
             caches. There is no added cost to defining a transport but not creating a cache that uses one, 
             since the transport is created and initialized lazily. -->
         <transport
-            clusterName="BigData-Index-Infinispan-cluster"
+            clusterName="Cassandra-Backed-Infinispan-Cluster"
             distributedSyncTimeout="50000">
             <!-- Note that the JGroups transport uses sensible defaults if no configuration 
                 property is defined. See the JGroupsTransport javadocs for more flags -->
@@ -25,7 +25,8 @@
           <stateRetrieval fetchInMemoryState="false" logFlushTimeout="30000" />
           <sync replTimeout="25000" />
       </clustering>
-	  <eviction strategy="LIRS" maxEntries="10" />
+	  <!--eviction strategy="LIRS" maxEntries="10" /-->
+	  <eviction strategy="NONE" maxEntries="-1" />
 	  <loaders passivation="false" shared="true" preload="false">
 	    <loader class="org.infinispan.loaders.cassandra.CassandraCacheStore"
 		  	fetchPersistentState="true" ignoreModifications="false" purgeOnStartup="false">
@@ -38,8 +39,9 @@
 	                   <property name="readConsistencyLevel" value="ONE" />
 	                   <property name="writeConsistencyLevel" value="ONE" />
 	                   <property name="configurationPropertiesFile" value="cassandrapool.properties" />         
-	                   <property name="keyMapper" value="org.infinispan.loaders.keymappers.DefaultTwoWayKey2StringMapper" />
-			   <!--property name="keyMapper" value="org.infinispan.loaders.keymappers.MarshalledValueOrPrimitiveMapper" /-->
+			           <property name="keyMapper" value="org.infinispan.lucene.LuceneKey2StringMapper" />
+		               <!--property name="keyMapper" value="org.infinispan.loaders.keymappers.DefaultTwoWayKey2StringMapper" /-->
+		               <!--property name="keyMapper" value="org.infinispan.loaders.keymappers.MarshalledValueOrPrimitiveMapper" /-->
 	           </properties>
 	      </loader>
 	  </loaders>

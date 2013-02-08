@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.search.Query;
 import org.hibernate.search.query.dsl.BooleanJunction;
 import org.hibernate.search.query.dsl.QueryBuilder;
@@ -14,25 +17,25 @@ import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.query.CacheQuery;
 import org.infinispan.query.Search;
 import org.infinispan.query.SearchManager;
-import org.jboss.tusk.common.DataStore;
+import org.jboss.tusk.common.DataStoreType;
 import org.jboss.tusk.common.TuskConfiguration;
+import org.jboss.tusk.hadoop.HBaseFacade;
 import org.jboss.tusk.ispn.InfinispanException;
 import org.jboss.tusk.ispn.index.BigDataIndex;
 import org.jboss.tusk.ispn.index.SearchCriterion;
 import org.jboss.tusk.ispn.index.StringIndex;
-import org.mortbay.log.Log;
 //import org.infinispan.util.logging.Log;
 //import org.infinispan.util.logging.LogFactory;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class InfinispanService {
 
 	private static final TuskConfiguration configuration = new TuskConfiguration();
 	
-	private static Logger LOG = LoggerFactory.getLogger(InfinispanService.class);
+	private static final Log LOG = LogFactory.getLog(InfinispanService.class);
+	
+	//valid values are 's3' or nothing
+	private static final String JGROUPS_TRANSPORT = System.getProperty("tusk.jgroups.transport", null);
 
 	//this is for the indexes
 	private static Cache<Object, Object> indexGrid = null;
@@ -41,34 +44,55 @@ public class InfinispanService {
 	private static Cache<Object, Object> dataGrid = null;
 	
 	public InfinispanService() {
+		//see if we need to create the grid objects
 		if (indexGrid == null) {
-			System.out.println("Creating cache for first time.");
+			LOG.info("Creating grid objects for first time.");
+			String indexGridConfigFile = null;
+			String dataGridConfigFile = null;
 			try {
-				if (configuration.getDataStore().equals(DataStore.CASSANDRA)) {
-					indexGrid = new DefaultCacheManager("bigdata-index-ispn-cassandra.xml").getCache();
-				} else if (configuration.getDataStore().equals(DataStore.HBASE)) {
-					indexGrid = new DefaultCacheManager("bigdata-index-ispn-hbase.xml").getCache();
-				} else if (configuration.getDataStore().equals(DataStore.INFINISPAN)) {
-					indexGrid = new DefaultCacheManager("bigdata-index-ispn.xml").getCache();
-					dataGrid = new DefaultCacheManager("bigdata-store-ispn.xml").getCache();
+				//figure out which config file to use for the index grid
+				if (configuration.getDataStoreType().equals(DataStoreType.CASSANDRA)) {
+					indexGridConfigFile = StringUtils.isEmpty(JGROUPS_TRANSPORT) ? 
+							"bigdata-index-ispn-cassandra.xml" : 
+								"bigdata-index-ispn-cassandra-s3.xml";
+				} else if (configuration.getDataStoreType().equals(DataStoreType.HBASE)) {
+					indexGridConfigFile = StringUtils.isEmpty(JGROUPS_TRANSPORT) ? 
+							"bigdata-index-ispn-hbase.xml" : 
+								"bigdata-index-ispn-hbase-s3.xml";
+				} else if (configuration.getDataStoreType().equals(DataStoreType.INFINISPAN)) {
+					indexGridConfigFile = StringUtils.isEmpty(JGROUPS_TRANSPORT) ? 
+							"bigdata-index-ispn.xml" : 
+								"bigdata-index-ispn-s3.xml";
+					//need to create the data grid too since we are storing the data payloads
+					//themselves in infinispan as well
+					dataGridConfigFile = StringUtils.isEmpty(JGROUPS_TRANSPORT) ? 
+							"bigdata-store-ispn.xml" : 
+								"bigdata-store-ispn-s3.xml";
+					LOG.info("Using " + dataGridConfigFile + " for the data grid.");
+					dataGrid = new DefaultCacheManager(dataGridConfigFile).getCache();
+				} else if (configuration.getDataStoreType().equals(DataStoreType.FILESYSTEM)) {
+					indexGridConfigFile = StringUtils.isEmpty(JGROUPS_TRANSPORT) ? 
+							"bigdata-index-ispn-filesystem.xml" : 
+								"bigdata-index-ispn-filesystem-s3.xml";
 				}
+				
+				//create the grid object
+				LOG.info("Using " + indexGridConfigFile + " for the index grid.");
+				indexGrid = new DefaultCacheManager(indexGridConfigFile).getCache();
 			} catch (Exception ex) {
-				System.err.println("Got exception creating cache manager: " + ex.getMessage());
-				ex.printStackTrace();
 				LOG.error("Got exception creating cache manager: " + ex.getMessage());
+				ex.printStackTrace();
 			}
 		} else {
-			System.out.println("Already created cache");
+			LOG.debug("Already created cache");
 		}
 	}
 	
 	public void writeValue(String key, String value) throws InfinispanException {
 		try {
 			StringValue strVal = new StringValue(value);
-			System.out.println("Writing " + key + "->" + strVal + " to " + dataGrid);
-			synchronized(dataGrid) {
-				dataGrid.put(key, strVal);
-			}
+			LOG.debug("Writing " + key + "->" + strVal + " to " + dataGrid);
+			dataGrid.put(key, strVal);
 		} catch (Exception ex) {
 			LOG.error("Got " + ex.getClass().getName() + " writing value: " + ex.getMessage());
 			ex.printStackTrace();
@@ -77,12 +101,9 @@ public class InfinispanService {
 	
 	public String loadValue(String key) throws InfinispanException {
 		try {
-			System.out.println("Loading " + key + " from " + dataGrid);
+			LOG.debug("Loading " + key + " from " + dataGrid);
 			
-			StringValue strVal = null;
-			synchronized(dataGrid) {
-				strVal = (StringValue)dataGrid.get(key);
-			}
+			StringValue strVal = (StringValue)dataGrid.get(key);
 			return strVal.toString();
 		} catch (Exception ex) {
 			LOG.error("Got " + ex.getClass().getName() + " writing value: " + ex.getMessage());
@@ -112,11 +133,9 @@ public class InfinispanService {
 		for (Entry<String, Object> entry : fields.entrySet()) {
 			String indexUniqueId = documentId + "_" + entry.getKey();
 			StringIndex strIndex = new StringIndex(entry.getKey(), entry.getValue().toString().toLowerCase(), documentId);
-			System.out.println("About to write " + indexUniqueId + "->" + strIndex + " to " + indexGrid);
+			LOG.debug("About to write " + indexUniqueId + "->" + strIndex + " to " + indexGrid);
 			
-			synchronized(indexGrid) {
-				indexGrid.put(indexUniqueId, strIndex);
-			}
+			indexGrid.put(indexUniqueId, strIndex);
 			
 			if (LOG.isDebugEnabled()) {
 				Object val = indexGrid.get(indexUniqueId);
@@ -135,9 +154,7 @@ public class InfinispanService {
 	public void removeIndex(String documentId, Set<String> keys) throws InfinispanException {
 		for (String key : keys) {
 			String indexUniqueId = documentId + "_" + key;
-			synchronized(indexGrid) {
-				indexGrid.remove(indexUniqueId);
-			}
+			indexGrid.remove(indexUniqueId);
 			
 			LOG.debug("Removed index " + indexUniqueId);
 		}
